@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width">
+	<title>KNATTLEIKR - Registrieren</title>
+   <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+   <link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.min.css">
+   <link rel="stylesheet" type="text/css" href="/css/styles.css ">
+   <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css">
+   <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+   <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+   <div class="container">
+      <nav class="navbar navbar-default">
+         <div class="container-fluid">
+            <div class="navbar-header">
+               <a class="navbar-brand" href="/">KNATTLEIKR</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+               <li><a href="/login">Einloggen</a></li>
+            </ul>
+         </div>
+      </nav>
+
+      <div class="col-sm-6 col-sm-offset-3">
+         <h2><span class="fa fa-sign-in"></span> Registrieren</h2>
+
+         <% if (message.length > 0) {%>
+            <div class="alert alert-danger"><%= message %></div>
+         <% }%>
+
+         <form action="/register" method="post">
+            <div class="form-group">
+               <label>E-Mail *</label><span> (wird niemandem angezeigt)</span>
+               <input type="email" class="form-control" name="email" value="<%= email %>"/>
+            </div>
+            <div class="form-group">
+               <label>Anzeigename (Nickname) *</label>
+               <input type="text" class="form-control" name="nickname" maxlength="20" value="<%= nickname %>"/>
+            </div>
+            <div class="form-group">
+               <label>Passwort *</label>
+               <input type="password" class="form-control" name="password1" />
+            </div>
+            <div class="form-group">
+               <label>Passwort wiederholen *</label>
+               <input type="password" class="form-control" name="password2" />
+            </div>
+
+            <div class="form-group">
+               <span>* = Pflichtfeld</span><br/>
+               <button class="btn btn-lg">Registrieren</button>
+            </div>
+         </form>
+      </div>
+   </div>
+</body>
+</html>

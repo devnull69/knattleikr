@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="de" ng-app="knattleikrIndexApp">
+<head>
+	<meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width">
+	<title>KNATTLEIKR</title>
+   <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+   <link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.min.css">
+   <link rel="stylesheet" type="text/css" href="/css/styles.css ">
+   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/de.js"></script>
+
+   <script >
+      aktuellerSpieltag = <%= spieltagNr %>;
+      sessionAktiv = <%=(user!=null) %>;
+
+      // Moment locale
+      var locale = window.navigator.userLanguage || window.navigator.language;
+      moment.locale(locale);
+   </script>
+
+   <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+   <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+   <script type="text/javascript" src="/js/app_index.js"></script>
+</head>
+<body ng-controller="knattleikrIndexController">
+   <div class="container">
+      <nav class="navbar navbar-default">
+         <div class="container-fluid">
+            <div class="navbar-header">
+               <a class="navbar-brand" href="/">KNATTLEIKR</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+            <% if (user) {%>
+               <li><a href="#"><%= user.nickname%></a></li>
+               <li><a href="/logout">Ausloggen</a></li>
+            <% } else {%>
+               <li><a href="/register">Registrieren</a></li>
+               <li><a href="/login">Einloggen</a></li>
+            <% }%>
+            </ul>
+         </div>
+      </nav>
+
+      <div class="alert alert-danger alert-dismissable" <% if(!error) {%>style="display:none"<% }%>>
+         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+         Deine Sitzung ist abgelaufen. Bitte logge Dich neu ein!
+      </div>
+
+      <div id="alertmessage" class="alert" style="display:none">
+         <span id="messagetext"></span>
+      </div>
+
+      <div class="col-sm-2"></div>
+      <div class="col-sm-8">
+         <form action="#" id="tippform">
+            <table class="table">
+               <thead>
+                  <tr>
+                     <th><a href="#" ng-click="getVorherigenSpieltag()"><span ng-show="aktuellerSpieltag>1" class="glyphicon glyphicon-triangle-left"></span></a> Spieltag {{aktuellerSpieltag}} <a href="#" ng-click="getNaechstenSpieltag()"><span ng-show="aktuellerSpieltag<34" class="glyphicon glyphicon-triangle-right"></span></a></th>
+                     <th></th>
+                     <th>Erg.</th>
+                     <% if (user) {%>
+                        <th>Tipp</th>
+                        <th>Pkt.</th>
+                     <% }%>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr ng-repeat="match in spieltagDaten">
+                     <td><img ng-src="{{ match.Team1.TeamIconUrl }}" width="20" /> {{ match.Team1.TeamName }}</td>
+                     <td><img ng-src="{{ match.Team2.TeamIconUrl }}" width="20" /> {{ match.Team2.TeamName }}</td>
+                     <td>{{ match.MatchIsFinished?match.MatchResults[1].PointsTeam1+":"+match.MatchResults[1].PointsTeam2:showDatumUhrzeit(match)}}</td>
+                     <% if (user) {%>
+                        <td ng-bind-html="showTipp(match)"></td>
+                        <td>{{ match.punkte>=0?match.punkte:"" }}</td>
+                     <% }%>
+                  </tr>
+                  <tr ng-if="wertung">
+                     <td colspan="2"></td>
+                     <td colspan="2"><b>Wertung:</b></td>
+                     <td>{{ wertung.toFixed(3) }}</td>
+                  </tr>
+               </tbody>
+            </table>
+            <span><b>Bitte beachten:</b> Tipps können bis spätestens 5 Stunden vor Spielbeginn abgegeben werden</span><br/>
+            <button ng-show="spieltagDirty" type="button" class="btn btn-lg" ng-click="saveTipps()">Tipps abgeben</button>
+         </form>
+      </div>
+      <div class="col-sm-2"></div>
+   </div>
+</body>
+</html>
