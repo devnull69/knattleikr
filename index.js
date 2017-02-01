@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(session({
 	secret: ')NC=8n0n084nwCndnscd9828783497(/',
 	saveUninitialized: false,
-	resave: true,
+	resave: false,
    cookie: {path: '/', httpOnly: true, secure: false, maxAge: 60 * 60 * 1000}, // 1 Stunde
    store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));

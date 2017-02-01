@@ -3,9 +3,10 @@ var knattleikrIndexApp = angular.module('knattleikrIndexApp', []);
 knattleikrIndexApp.factory('apiFactory', function($http) {
    var urlBase = "api/";
    var apiFactory = {};
+   var getRandomizer = "?" + (new Date()).getTime();
 
    apiFactory.getSpieltag = function(spieltagNr) {
-      return $http.get(urlBase + 'spieltag/' + spieltagNr);
+      return $http.get(urlBase + 'spieltag/' + spieltagNr + getRandomizer);
    };
 
    apiFactory.tippsAbgeben = function(spieltagNr, jsonData) {
@@ -24,9 +25,12 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
    // Controller-Methoden
    $scope.getAktuellenSpieltag = function() {
       $scope.spieltagDirty = false;
+      $('#spinner').show();
       apiFactory.getSpieltag($scope.aktuellerSpieltag).then(response => {
          $scope.spieltagDaten = response.data.matches;
          $scope.wertung = response.data.wertung;
+
+         $('#spinner').hide();
 
          // Ist Session inaktiv geworden? Dann refresh und Meldung anzeigen
          if($scope.sessionAktiv && !response.data.sessionOk)
