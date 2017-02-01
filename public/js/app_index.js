@@ -60,15 +60,21 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
    $scope.showTipp = function(match) {
       var matchDate = moment(match.MatchDateTimeUTC);
       var returnValue = "";
+      $scope.tippbar = false;
       if(match.usertipp) {
          // Tippdatum minus 5 Stunden noch nicht erreicht? Dann input-Felder anzeigen
-         if(moment.duration(matchDate.diff(moment())).asHours() > 5)
+         if(moment.duration(matchDate.diff(moment())).asHours() > 5) {
             returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" size="1" maxlength="2" value="' + match.usertipp.pointsTeam1 + '"/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" size="1" maxlength="2" value="' + match.usertipp.pointsTeam2 + '"/>';
-         else
+            $scope.tippbar = true;
+         }
+         else {
             returnValue = match.usertipp.pointsTeam1 + ":" + match.usertipp.pointsTeam2;
+         }
       } else {
-         if(moment.duration(matchDate.diff(moment())).asHours() > 5)
+         if(moment.duration(matchDate.diff(moment())).asHours() > 5) {
             returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" size="1" maxlength="2" value=""/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" size="1" maxlength="2" value=""/>';
+            $scope.tippbar = true;
+         }
       }
       return $sce.trustAsHtml(returnValue);
    };
