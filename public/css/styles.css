@@ -1,7 +1,13 @@
 body {
 	margin-top: 10px;
+   background: url(/images/background.png) no-repeat center center fixed;
+   background-size: cover;
 }
 
 .tipp {
    color: black;
+}
+
+.white {
+   color: white;
 }

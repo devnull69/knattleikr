@@ -1,5 +1,27 @@
 var knattleikrIndexApp = angular.module('knattleikrIndexApp', []);
 
+// Team-Mappings
+var teamShort = {
+   "t6"  : "B04",
+   "t7"  : "BVB",
+   "t9"  : "S04",
+   "t40" : "FCB",
+   "t54" : "BSC",
+   "t65" : "KOE",
+   "t81" : "M05",
+   "t87" : "BMG",
+   "t91" : "SGE",
+   "t95" : "FCA",
+   "t100": "HSV",
+   "t112": "SCF",
+   "t118": "D98",
+   "t123": "TSG",
+   "t131": "WOB",
+   "t134": "SVW",
+   "t171": "FCI",
+   "t1635": "RBL"
+};
+
 knattleikrIndexApp.factory('apiFactory', function($http) {
    var urlBase = "api/";
    var apiFactory = {};
@@ -27,8 +49,17 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
       $scope.spieltagDirty = false;
       $('#spinner').show();
       apiFactory.getSpieltag($scope.aktuellerSpieltag).then(response => {
-         $scope.spieltagDaten = response.data.matches;
          $scope.wertung = response.data.wertung;
+         $scope.matchesFinished = [];
+         $scope.matchesUnFinished = [];
+
+         // Alle durchgehen und sehen, ob bereits Spiele fertig sind
+         for(i=0; i<response.data.matches.length;i++) {
+            if(response.data.matches[i].MatchIsFinished)
+               $scope.matchesFinished.push(response.data.matches[i]);
+            else
+               $scope.matchesUnFinished.push(response.data.matches[i]);
+         }
 
          $('#spinner').hide();
 
@@ -54,7 +85,10 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
 
    $scope.showDatumUhrzeit = function(match) {
       var datum = moment(match.MatchDateTimeUTC);
-      return datum.format("dd DD MMM, HH:mm");
+      if(isBreakpoint('xs') || isBreakpoint('sm'))
+         return datum.format("D.M., HH:mm");
+      else
+         return datum.format("dd DD MMM, HH:mm");
    };
 
    $scope.showTipp = function(match) {
@@ -64,7 +98,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
       if(match.usertipp) {
          // Tippdatum minus 5 Stunden noch nicht erreicht? Dann input-Felder anzeigen
          if(moment.duration(matchDate.diff(moment())).asHours() > 5) {
-            returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" size="1" maxlength="2" value="' + match.usertipp.pointsTeam1 + '"/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" size="1" maxlength="2" value="' + match.usertipp.pointsTeam2 + '"/>';
+            returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" maxlength="2" value="' + match.usertipp.pointsTeam1 + '" style="width: 25px;"/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" maxlength="2" value="' + match.usertipp.pointsTeam2 + '" style="width: 25px;"/>';
             $scope.tippbar = true;
          }
          else {
@@ -72,11 +106,18 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
          }
       } else {
          if(moment.duration(matchDate.diff(moment())).asHours() > 5) {
-            returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" size="1" maxlength="2" value=""/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" size="1" maxlength="2" value=""/>';
+            returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" maxlength="2" value="" style="width: 25px;"/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" maxlength="2" value="" style="width: 25px;"/>';
             $scope.tippbar = true;
          }
       }
       return $sce.trustAsHtml(returnValue);
+   };
+
+   $scope.showTeamName = function(match, teamNr) {
+      if(isBreakpoint('xs'))
+         return teamShort["t"+match['Team'+teamNr].TeamId];
+      else
+         return match['Team'+teamNr].TeamName;
    };
 
    $scope.saveTipps = function() {
@@ -87,6 +128,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
          requestObject[jsonData[i].name] = jsonData[i].value;
       }
       apiFactory.tippsAbgeben($scope.aktuellerSpieltag, JSON.stringify(requestObject)).then(function(response) {
+         window.scrollTo(0,0);
          if(response.data.err>0) {
             showMessage("danger", response.data.message);
          } else {
@@ -121,4 +163,8 @@ function showMessage(type, message) {
          $alertmessage.removeClass('alert-' + type);
       });
    }, 5000);
+}
+
+function isBreakpoint( alias ) {
+    return $('.device-' + alias).is(':visible');
 }
