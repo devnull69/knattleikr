@@ -7,7 +7,10 @@ var userSchema = new mongoose.Schema({
    isAdmin: {type: Boolean, required: true},
    isAktiv: {type: Boolean, required: true},
    memberOf: {type: mongoose.Schema.Types.ObjectId, ref: 'Team'},
-   tlStatus: {type: Number, required: true}
+   tlStatus: {type: Number, required: true},
+   punkte: {type: Number, default: 0},
+   spiele: {type: Number, default: 0},
+   wertung: {type: Number, default: -1}
 }, {collection: 'user'});
 
 module.exports = mongoose.model('User', userSchema);

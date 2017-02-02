@@ -4,7 +4,7 @@ var Helper = require('./util/helper.js');
 var async = require('async');
 var moment = require('moment');
 
-module.exports = function(app, User, UserTipp) {
+module.exports = function(app, User, UserTipp, Settings) {
    
    app.get('/api/spieltag/:spieltag', (req, res) => {
       // Spieltag-Daten von OpenLigaDB
@@ -56,7 +56,6 @@ module.exports = function(app, User, UserTipp) {
       var fehler = false;
 
       if(req.session.user) {
-         console.log('Session ok');
          var theUser = req.session.user;
          OpenLigaDB.getSpieltag(2016, req.params.spieltag, (err, data) => {
             // alle Matches
@@ -117,4 +116,17 @@ module.exports = function(app, User, UserTipp) {
       }
    });
 
+   app.post('/api/admin/config', (req, res) => {
+      if(req.session.user && req.session.user.isAdmin) {
+         console.dir(req.body);
+         var aktSpieltag = req.body.aktuellerSpieltag;
+         if(aktSpieltag && aktSpieltag.match(/^\d+$/)) {
+            var neuerWert = parseInt(aktSpieltag, 10);
+            if(neuerWert > 0 && neuerWert < 35) {
+               Settings.aktuellerSpieltag = neuerWert;
+               res.json({err: 0, message: 'Die Konfiguration wurde erfolgreich gespeichert.'});
+            }
+         }
+      }
+   });
 };

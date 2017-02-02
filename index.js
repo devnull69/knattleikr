@@ -40,7 +40,7 @@ Config.find({}, (err, docs) => {
    require('./viewroutes.js')(app, User, Settings);
 
    // Api-Routen
-   require('./apiroutes.js')(app, User, UserTipp);
+   require('./apiroutes.js')(app, User, UserTipp, Settings);
 });
 
 // Server

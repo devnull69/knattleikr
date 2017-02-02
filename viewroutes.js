@@ -123,4 +123,13 @@ module.exports = function(app, User, Settings) {
       res.redirect('/');
    });
 
+   app.get('/admin', (req, res) => {
+      if(req.session.user && req.session.user.isAdmin) {
+         res.render('admin', {user: req.session.user, aktuellerSpieltag: Settings.aktuellerSpieltag});
+      } else {
+         req.session.user = null;
+         req.session.destroy();
+         res.redirect('/?err=1');
+      }
+   });
 };
