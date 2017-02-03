@@ -4,11 +4,11 @@ var Helper = require('./util/helper.js');
 var async = require('async');
 var moment = require('moment');
 
-module.exports = function(app, User, UserTipp, Settings) {
+module.exports = function(app, User, UserTipp, Config, Settings, Einzeltabelle) {
    
    app.get('/api/spieltag/:spieltag', (req, res) => {
       // Spieltag-Daten von OpenLigaDB
-      OpenLigaDB.getSpieltag(2016, req.params.spieltag, (err, data) => {
+      OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {
 
          var result = {};
          result.sessionOk = false;
@@ -57,7 +57,7 @@ module.exports = function(app, User, UserTipp, Settings) {
 
       if(req.session.user) {
          var theUser = req.session.user;
-         OpenLigaDB.getSpieltag(2016, req.params.spieltag, (err, data) => {
+         OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {
             // alle Matches
             async.forEach(data, (match, callback) => {
                var theMatchNr = match.MatchID;
@@ -116,17 +116,110 @@ module.exports = function(app, User, UserTipp, Settings) {
       }
    });
 
+   // Administration
+
    app.post('/api/admin/config', (req, res) => {
       if(req.session.user && req.session.user.isAdmin) {
-         console.dir(req.body);
          var aktSpieltag = req.body.aktuellerSpieltag;
          if(aktSpieltag && aktSpieltag.match(/^\d+$/)) {
             var neuerWert = parseInt(aktSpieltag, 10);
             if(neuerWert > 0 && neuerWert < 35) {
                Settings.aktuellerSpieltag = neuerWert;
-               res.json({err: 0, message: 'Die Konfiguration wurde erfolgreich gespeichert.'});
+
+               // Konfiguration in Datenbank ablegen
+               Config.update({}, {$set: {aktuellerSpieltag: neuerWert}}, err => {
+                  res.json({err: 0, message: 'Die Konfiguration wurde erfolgreich gespeichert.'});
+               });
             }
+         } else {
+            res.json({err: 1, message: 'Die Änderung der Konfiguration wurde nicht übernommen.'});
          }
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
       }
    });
+
+   app.get('/api/admin/einzelwertung', (req, res) => {
+      if(req.session.user && req.session.user.isAdmin) {
+         // Schritt 0: Alle User holen
+         // Schritt 1: Alle Spieltage durchgehen, dann Tipps sichten
+         // Schritt 2: Benutzer updaten
+         // Schritt 3: Tabelle berechnen aus Usern
+         var allUsers = {};
+         User.find({}, {}, (err, users) => {
+            async.forEach(users, (user, callback) => {
+               allUsers[user._id] = {nickname: user.nickname, punkte: 0, spiele: 0, wertung: -1};
+               callback();
+            }, err => {
+               einzelwertungRekursiv(1, res, allUsers);
+            });
+         });
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+      }
+   });
+
+   function einzelwertungRekursiv(spieltag, res, users) {
+      if(spieltag < 35) {
+         console.log('Checking Spieltag ' + spieltag + " ...");
+         OpenLigaDB.getSpieltag(spieltag, (err, matches) => {
+            // einen Spieltag durchgehen
+            async.forEach(matches, (match, callback) => {
+               if(match.MatchIsFinished) {
+                  var theMatchNr = match.MatchID;
+
+                  // Alle Tipps dazu suchen
+                  UserTipp.find({matchNr: theMatchNr}, (err, usertipps) => {
+                     async.forEach(usertipps, (usertipp, innercallback) => {
+                        // Punkte berechnen und dem Benutzer hinzufügen
+                        var punkte = Helper.calcPunkte(match.MatchResults[1].PointsTeam1, match.MatchResults[1].PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
+                        users[usertipp.fiUser].punkte += punkte;
+                        users[usertipp.fiUser].spiele++;
+                        users[usertipp.fiUser].wertung = users[usertipp.fiUser].punkte/users[usertipp.fiUser].spiele;
+                        innercallback();
+                     }, err => {
+                        // inner async forEach finished, go next on outer async forEach
+                        callback();
+                     });
+                  });
+               } else {
+                  callback();
+               }
+            }, err => {
+               // Async loop finished
+               einzelwertungRekursiv(spieltag + 1, res, users);
+            });
+         });         
+      } else {
+         // User zurückschreiben
+         async.forEach(Object.keys(users), (userid, callback) => {
+            User.update({_id: new mongoose.Types.ObjectId(userid)}, {$set: {punkte: users[userid].punkte, spiele: users[userid].spiele, wertung: users[userid].wertung}}, err => {
+               callback();
+            });
+         }, err => {
+            // Tabelle berechnen
+
+            // Users-Objekt in Array umwandeln
+            var userArray = [];
+            for(userid in users)
+               userArray.push(users[userid]);
+
+            userArray.sort((user1, user2) => {
+               return user2.wertung - user1.wertung;
+            });
+
+            console.dir(userArray);
+            mongoose.connection.db.dropCollection('einzeltabelle', (err, result) => {
+               async.forEach(userArray, (user, callback) => {
+                  Einzeltabelle.update({nickname: user.nickname}, {nickname: user.nickname, punkte: user.punkte, spiele: user.spiele, wertung: user.wertung}, {upsert: true}, (err, results) => {
+                     callback();
+                  })
+               }, err => {
+                  res.json({err: 0, message: 'Einzelwertung erfolgreich berechnet.'});
+               });
+            });
+
+         });
+      }
+   }
 };

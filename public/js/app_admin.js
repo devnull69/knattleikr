@@ -9,6 +9,10 @@ knattleikrAdminApp.factory('apiFactory', function($http) {
       return $http.post(urlBase + 'config', JSON.stringify(config));
    };
 
+   apiFactory.einzelwertung = function() {
+      return $http.get(urlBase + 'einzelwertung');
+   };
+
    return apiFactory;
 });
 
@@ -19,8 +23,34 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, apiF
 
    $scope.saveConfig = function() {
       apiFactory.saveConfig({aktuellerSpieltag: $scope.aktuellerSpieltag}).then(function(response) {
-         if(response.data.err == 0) {
-            showMessage('success', response.data.message);
+         switch(response.data.err) {
+            case 0:
+               showMessage('success', response.data.message);
+               break;
+            case 1:
+               showMessage('danger', response.data.message);
+               break;
+            case 2:
+               window.location.href = "/?err=1";
+               break;
+         }
+      });
+   };
+
+   $scope.einzelwertung = function() {
+      $('#spinner_einzelwertung').show();
+      apiFactory.einzelwertung().then(function(response) {
+         $('#spinner_einzelwertung').hide();
+         switch(response.data.err) {
+            case 0:
+               showMessage('success', response.data.message);
+               break;
+            case 1:
+               showMessage('danger', response.data.message);
+               break;
+            case 2:
+               window.location.href = "/?err=1";
+               break;
          }
       });
    };

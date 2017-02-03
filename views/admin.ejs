@@ -39,7 +39,7 @@
                         <li><a href="/logout">Ausloggen</a></li>
                      </ul>
                   </li>
-                  <li><p class="navbar-text"><%= user.wertung>-1?'('+user.wertung.toFixed(3)+'':''%></p></li>
+                  <li><p class="navbar-text"><%= user.wertung>-1?'('+user.wertung.toFixed(3)+')':''%></p></li>
                </ul>
             <% } else {%>
             <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main" aria-expanded="true">
@@ -72,6 +72,8 @@
                <button type="button" ng-click="saveConfig()" class="btn btn-lg">Speichern</button>
             </div>
          </form>
+         <hr>
+         <button type="button" ng-click="einzelwertung()" class="btn btn-lg">Einzelwertung berechnen <i id="spinner_einzelwertung" class="fa fa-refresh fa-spin" style="display:none"></i></button>
       </div>
       <div class="hidden-xs col-md-2 col-lg-3"></div>
    </div>

@@ -12,6 +12,7 @@ mongoose.connect(configDB.url);
 var User = require('./model/user.js');
 var UserTipp = require('./model/usertipp.js');
 var Config = require('./model/config.js');
+var Einzeltabelle = require('./model/einzeltabelle.js');
 
 // App Middleware
 var port = process.env.port || 1337;
@@ -40,7 +41,7 @@ Config.find({}, (err, docs) => {
    require('./viewroutes.js')(app, User, Settings);
 
    // Api-Routen
-   require('./apiroutes.js')(app, User, UserTipp, Settings);
+   require('./apiroutes.js')(app, User, UserTipp, Config, Settings, Einzeltabelle);
 });
 
 // Server
