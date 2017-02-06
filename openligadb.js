@@ -14,6 +14,10 @@ var returnObject = {
    getSpieltag : function(spieltag, callback) {
       if(spieltagCache[spieltag] && (spieltagCache[spieltag].permanent || moment.duration(moment().diff(spieltagCache[spieltag].lastUpdate)).asMinutes() < cacheTimeoutInMin)) {
          console.log("Spieltag " + spieltag + " aus dem Cache abgerufen");
+         for(j=0; j<spieltagCache[spieltag].matches.length; j++) {
+            spieltagCache[spieltag].matches[j].usertipp = null;
+            spieltagCache[spieltag].matches[j].punkte = null;
+         }
          callback(null, spieltagCache[spieltag].matches);
       } else {
          client.get("https://www.openligadb.de/api/getmatchdata/bl1/2016/" + spieltag, args, (data, response) => {

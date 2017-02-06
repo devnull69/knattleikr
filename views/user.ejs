@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de" ng-app="knattleikrUserApp">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width">
+   <title>KNATTLEIKR - <%= otherUser.nickname %></title>
+
+   <% include cssAndScripts %>
+
+   <script>
+      otherUserId = '<%= otherUser.userid %>';
+   </script>
+
+   <script type="text/javascript" src="/js/app_user.js"></script>
+</head>
+<body ng-controller="knattleikrUserController">
+
+   <% include nav %>
+   
+   <div class="container" style="margin-top: 70px;">
+      <h5>Willkommen<% if(user) {%><span> <%= user.nickname%></span><%= user.wertung>-1?' ('+user.wertung.toFixed(3)+')':''%><% }%></h5>
+
+      <div id="alertmessage" class="alert" style="display:none;">
+         <span id="messagetext"></span>
+      </div>
+   </div>
+
+   <div style="min-height: 500px;">
+      <div class="hidden-xs col-md-2 col-lg-3"></div>
+      <div class="col-xs-12 col-md-8 col-lg-6">
+         <h4>Userseite - <%= otherUser.nickname %><%= otherUser.wertung>-1?" (" + otherUser.wertung.toFixed(3) + ")":""%></h4>
+         <hr/>
+         <h4><a href="#" ng-click="getVorherigenSpieltag()"><span ng-show="aktuellerSpieltag>1" class="glyphicon glyphicon-triangle-left"></span></a> Spieltag {{aktuellerSpieltag}} <a href="#" ng-click="getNaechstenSpieltag()"><span ng-show="aktuellerSpieltag<34" class="glyphicon glyphicon-triangle-right"></span></a> <i id="spinner" class="fa fa-refresh fa-spin" style="display:none"></i></h4>
+         <table class="table" ng-show="matchesFinished.length > 0">
+            <thead>
+               <tr>
+                  <th colspan="2">Mannschaften</th>
+                  <th>Erg.</th>
+                  <th>Tipp</th>
+                  <th>Pkt.</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr ng-repeat="match in matchesFinished">
+                  <td><img ng-src="{{ match.Team1.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 1) }}</td>
+                  <td><img ng-src="{{ match.Team2.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 2) }}</td>
+                  <td>{{ match.MatchResults[1].PointsTeam1+":"+match.MatchResults[1].PointsTeam2 }}</td>
+                  <td ng-bind-html="showTipp(match)"></td>
+                  <td>{{ match.punkte>=0?match.punkte:"" }}</td>
+               </tr>
+               <tr ng-if="wertung">
+                  <td colspan="2"></td>
+                  <td colspan="2"><b>Wertung:</b></td>
+                  <td>{{ wertung.toFixed(3) }}</td>
+               </tr>
+            </tbody>
+         </table>
+
+         <table class="table" ng-show="matchesUnFinished.length > 0">
+            <thead>
+               <tr>
+                  <th colspan="2">Mannschaften</th>
+                  <th>Datum</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr ng-repeat="match in matchesUnFinished">
+                  <td><img ng-src="{{ match.Team1.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 1) }}</td>
+                  <td><img ng-src="{{ match.Team2.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 2) }}</td>
+                  <td>{{ showDatumUhrzeit(match) }}</td>
+               </tr>
+            </tbody>
+         </table>
+      </div>
+      <div class="hidden-xs col-md-2 col-lg-3"></div>
+   </div>
+
+   <div class="device-xs visible-xs"></div>
+   <div class="device-sm visible-sm"></div>
+</body>
+</html>

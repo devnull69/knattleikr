@@ -137,7 +137,30 @@ module.exports = function(app, Settings) {
 
    app.get('/tabelle', (req, res) => {
       Einzeltabelle.find({}, (err, tabelle) => {
-         res.render('tabelle', {user: req.session.user, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
+         if(req.session.user)
+            res.render('tabelle', {user: req.session.user, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
+         else
+            res.render('tabelle', {user: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
+      });
+   });
+
+   app.get('/user/:nickname', (req, res) => {
+      if(req.session.user)
+         currentUser = req.session.user;
+      else
+         currentUser = null;
+
+      // Benutzer suchen
+      User.findOne({nickname: req.params.nickname}, (err, otherUser) => {
+         if(otherUser) {
+            var andererUser = {};
+            andererUser.nickname = otherUser.nickname;
+            andererUser.userid = otherUser._id.toString();
+            andererUser.wertung = otherUser.wertung;
+            res.render('user', {user: currentUser, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser});
+         } else {
+            res.redirect('/');
+         }
       });
    });
 };

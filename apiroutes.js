@@ -120,6 +120,46 @@ module.exports = function(app, Settings) {
       }
    });
 
+   app.get('/api/user/:userid/spieltag/:spieltag', (req, res) => {
+      // Spieltag-Daten von OpenLigaDB
+      OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {
+
+         var result = {};
+         result.sessionOk = false;
+
+         //Auffüllen mit Usertipps, falls vorhanden
+         var theUser = req.params.userid;
+         var gesamtPunkte = 0;
+         var tippAnzahl = 0;
+         result.sessionOk = true;
+
+         // alle Matches
+         async.forEach(data, (match, callback) => {
+            var theMatchNr = match.MatchID;
+
+            UserTipp.findOne({fiUser: theUser, matchNr: theMatchNr}, (err, usertipp) => {
+               if(usertipp) {
+                  if(match.MatchIsFinished) {
+                     // Punkte berechnen, falls match schon beendet ist
+                     match.usertipp = usertipp;
+                     match.punkte = Helper.calcPunkte(match.MatchResults[1].PointsTeam1, match.MatchResults[1].PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
+                     tippAnzahl++;
+                     gesamtPunkte += match.punkte;
+                  }
+               }
+               callback();
+            });
+         }, err => {
+            // Async loop finished
+            result.matches = data;
+            if(tippAnzahl > 0)
+               result.wertung = gesamtPunkte / tippAnzahl;
+
+            res.json(result);
+         });
+      });
+   });
+
    // Administration
 
    app.post('/api/admin/config', (req, res) => {
