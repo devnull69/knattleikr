@@ -1,6 +1,8 @@
 var bcrypt = require('bcrypt-nodejs');
+var User = require('./model/user.js');
+var Einzeltabelle = require('./model/einzeltabelle.js');
 
-module.exports = function(app, User, Settings) {
+module.exports = function(app, Settings) {
    app.get('/', (req, res) => {
       var spieltagNr = Settings.aktuellerSpieltag;
       if(req.session.user)
@@ -125,11 +127,17 @@ module.exports = function(app, User, Settings) {
 
    app.get('/admin', (req, res) => {
       if(req.session.user && req.session.user.isAdmin) {
-         res.render('admin', {user: req.session.user, aktuellerSpieltag: Settings.aktuellerSpieltag});
+         res.render('admin', {user: req.session.user, spieltagNr: Settings.aktuellerSpieltag});
       } else {
          req.session.user = null;
          req.session.destroy();
          res.redirect('/?err=1');
       }
+   });
+
+   app.get('/tabelle', (req, res) => {
+      Einzeltabelle.find({}, (err, tabelle) => {
+         res.render('tabelle', {user: req.session.user, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
+      });
    });
 };

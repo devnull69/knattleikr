@@ -12,7 +12,7 @@ var args = {
 
 var returnObject = {
    getSpieltag : function(spieltag, callback) {
-      if(spieltagCache[spieltag] && moment.duration(moment().diff(spieltagCache[spieltag].lastUpdate)).asMinutes() < cacheTimeoutInMin) {
+      if(spieltagCache[spieltag] && (spieltagCache[spieltag].permanent || moment.duration(moment().diff(spieltagCache[spieltag].lastUpdate)).asMinutes() < cacheTimeoutInMin)) {
          console.log("Spieltag " + spieltag + " aus dem Cache abgerufen");
          callback(null, spieltagCache[spieltag].matches);
       } else {
@@ -20,7 +20,22 @@ var returnObject = {
             spieltagCache[spieltag] = {};
             spieltagCache[spieltag].matches = data;
             spieltagCache[spieltag].lastUpdate = moment();
-            console.log("Spieltag " + spieltag + " live abgerufen und im Cache abgelegt");
+
+            // Ist Spieltag komplett, dann Flag setzen
+            var spieltagKomplett = true;
+            var i=0;
+            do {
+               if(!data[i].MatchIsFinished)
+                  spieltagKomplett = false;
+               i++;
+            } while (spieltagKomplett && i < data.length);
+
+            if(spieltagKomplett)
+               spieltagCache[spieltag].permanent = true;
+            else
+               spieltagCache[spieltag].permanent = false;
+
+            console.log("Spieltag " + spieltag + " live abgerufen und im Cache abgelegt" + (spieltagKomplett?" (permanent)":""));
             callback(null, data);
          });
       }

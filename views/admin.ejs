@@ -4,53 +4,14 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width">
    <title>KNATTLEIKR - Admin</title>
-   <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
-   <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css">
-   <link rel="stylesheet" type="text/css" href="/css/styles.css ">
-   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
-   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/de.js"></script>
 
-   <script >
-      sessionAktiv = <%=(user!=null) %>;
-      aktuellerSpieltag = <%=aktuellerSpieltag%>;
+   <% include cssAndScripts %>
 
-      // Moment locale
-      var locale = window.navigator.userLanguage || window.navigator.language;
-      moment.locale(locale);
-   </script>
-
-   <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-   <script type="text/javascript" src="/js/bootstrap.min.js"></script>
-   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
    <script type="text/javascript" src="/js/app_admin.js"></script>
 </head>
 <body ng-controller="knattleikrAdminController">
-   <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-         <div class="navbar-header">
-            <a class="navbar-brand" href="/"><img src="/images/knattleikr_white.png" title="KNATTLEIKR" alt="KNATTLEIKR"/></a>
-            <% if (user) {%>
-               <ul class="nav navbar-nav">
-                  <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" id="username" aria-expanded="false"><%= user.nickname%> <span class="caret"></span></a>
-                     <ul class="dropdown-menu" aria-labelledby="username">
-                        <li><a href="/">Übersicht</a></li>
-                        <li class="divider"></li>
-                        <% if (user.isAdmin) {%><li><a href="/admin">Admin</a></li><li class="divider"></li><% }%>
-                        <li><a href="/logout">Ausloggen</a></li>
-                     </ul>
-                  </li>
-                  <li><p class="navbar-text"><%= user.wertung>-1?'('+user.wertung.toFixed(3)+')':''%></p></li>
-               </ul>
-            <% } else {%>
-            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main" aria-expanded="true">
-               <span class="icon-bar"></span>
-               <span class="icon-bar"></span>
-               <span class="icon-bar"></span>
-             </button>
-            <% }%>
-         </div>
-      </div>
-   </nav>
+
+   <% include nav %>
 
    <div class="container" style="margin-top: 70px;">
       <div id="alertmessage" class="alert" style="display:none;">

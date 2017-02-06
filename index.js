@@ -9,10 +9,8 @@ var MongoStore = require('connect-mongo')(session);
 var configDB = require('./config/database.js');
 mongoose.connect(configDB.url);
 
-var User = require('./model/user.js');
-var UserTipp = require('./model/usertipp.js');
+//var UserTipp = require('./model/usertipp.js');
 var Config = require('./model/config.js');
-var Einzeltabelle = require('./model/einzeltabelle.js');
 
 // App Middleware
 var port = process.env.port || 1337;
@@ -24,7 +22,7 @@ app.use(session({
 	secret: ')NC=8n0n084nwCndnscd9828783497(/',
 	saveUninitialized: false,
 	resave: false,
-   cookie: {path: '/', httpOnly: true, secure: false, maxAge: 60 * 60 * 1000}, // 1 Stunde
+   maxAge: 3 * 60 * 60 * 1000,                                              // 3 Stunden idle
    store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
@@ -38,10 +36,10 @@ Config.find({}, (err, docs) => {
       throw err;
    var Settings = docs[0];
    // Routen für die Views
-   require('./viewroutes.js')(app, User, Settings);
+   require('./viewroutes.js')(app, Settings);
 
    // Api-Routen
-   require('./apiroutes.js')(app, User, UserTipp, Config, Settings, Einzeltabelle);
+   require('./apiroutes.js')(app, Settings);
 });
 
 // Server

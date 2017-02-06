@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de" ng-app="knattleikrTabelleApp">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width">
+   <title>KNATTLEIKR - Gesamttabelle</title>
+
+   <% include cssAndScripts %>
+
+   <script type="text/javascript" src="/js/app_tabelle.js"></script>
+</head>
+<body ng-controller="knattleikrTabelleController">
+
+   <% include nav %>
+   
+   <div class="container" style="margin-top: 70px;">
+      <h5>Willkommen<% if(user) {%><span> <%= user.nickname%></span><%= user.wertung>-1?' ('+user.wertung.toFixed(3)+')':''%><% }%></h5>
+
+      <div id="alertmessage" class="alert" style="display:none;">
+         <span id="messagetext"></span>
+      </div>
+   </div>
+
+   <div style="min-height: 500px;">
+      <div class="hidden-xs col-md-3 col-lg-4"></div>
+      <div class="col-xs-12 col-md-6 col-lg-4">
+         <h4>Gesamttabelle</h4>
+         <table class="table">
+            <thead>
+               <tr>
+                  <th>Pos.</th>
+                  <th>User</th>
+                  <th>Pkt.</th>
+                  <th>Spiele</th>
+                  <th>Wertung</th>
+               </tr>
+            </thead>
+            <tbody>
+               <% for(i=0; i<tabelle.length; i++) {%>
+                  <tr>
+                     <td><%= i+1 %></td>
+                     <td><a class="userlink" href="/user/<%= tabelle[i].nickname %>"><%= tabelle[i].nickname %></a></td>
+                     <td><%= tabelle[i].punkte %></td>
+                     <td><%= tabelle[i].spiele %></td>
+                     <td><%= tabelle[i].wertung>-1?tabelle[i].wertung.toFixed(3):"-" %></td>
+                  </tr>
+               <% }%>
+            </tbody>
+         </table>
+      </div>
+      <div class="hidden-xs col-md-3 col-lg-4"></div>
+   </div>
+
+   <div class="device-xs visible-xs"></div>
+   <div class="device-sm visible-sm"></div>
+</body>
+</html>

@@ -3,8 +3,12 @@ var OpenLigaDB = require('./openligadb.js');
 var Helper = require('./util/helper.js');
 var async = require('async');
 var moment = require('moment');
+var User = require('./model/user.js');
+var UserTipp = require('./model/usertipp.js');
+var Config = require('./model/config.js');
+var Einzeltabelle = require('./model/einzeltabelle.js');
 
-module.exports = function(app, User, UserTipp, Config, Settings, Einzeltabelle) {
+module.exports = function(app, Settings) {
    
    app.get('/api/spieltag/:spieltag', (req, res) => {
       // Spieltag-Daten von OpenLigaDB
