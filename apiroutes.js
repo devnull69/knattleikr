@@ -218,7 +218,6 @@ module.exports = function(app, Settings) {
 
    function einzelwertungRekursiv(spieltag, res, users) {
       if(spieltag <= Settings.aktuellerSpieltag) {
-         console.log('Checking Spieltag ' + spieltag + " ...");
          OpenLigaDB.getSpieltag(spieltag, (err, matches) => {
             // einen Spieltag durchgehen
             async.forEach(matches, (match, callback) => {
@@ -265,7 +264,6 @@ module.exports = function(app, Settings) {
                return user2.wertung - user1.wertung;
             });
 
-            console.dir(userArray);
             mongoose.connection.db.dropCollection('einzeltabelle', (err, result) => {
                async.forEach(userArray, (user, callback) => {
                   Einzeltabelle.update({nickname: user.nickname}, {nickname: user.nickname, punkte: user.punkte, spiele: user.spiele, wertung: user.wertung}, {upsert: true}, (err, results) => {

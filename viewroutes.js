@@ -9,7 +9,6 @@ module.exports = function(app, Settings) {
       var spieltagNr = Settings.aktuellerSpieltag;
       if(req.session.user) {
          UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            console.dir(userdetail);
             res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, error: req.query.err});
          });
       }

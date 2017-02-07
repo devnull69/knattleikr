@@ -13,7 +13,6 @@ var args = {
 var returnObject = {
    getSpieltag : function(spieltag, callback) {
       if(spieltagCache[spieltag] && (spieltagCache[spieltag].permanent || moment.duration(moment().diff(spieltagCache[spieltag].lastUpdate)).asMinutes() < cacheTimeoutInMin)) {
-         console.log("Spieltag " + spieltag + " aus dem Cache abgerufen");
          for(j=0; j<spieltagCache[spieltag].matches.length; j++) {
             spieltagCache[spieltag].matches[j].usertipp = null;
             spieltagCache[spieltag].matches[j].punkte = null;
@@ -39,7 +38,6 @@ var returnObject = {
             else
                spieltagCache[spieltag].permanent = false;
 
-            console.log("Spieltag " + spieltag + " live abgerufen und im Cache abgelegt" + (spieltagKomplett?" (permanent)":""));
             callback(null, data);
          });
       }
