@@ -14,7 +14,7 @@
    <% include nav %>
    
    <div class="container" style="margin-top: 70px;">
-      <h5>Willkommen<% if(user) {%><span> <%= user.nickname%></span><%= user.wertung>-1?' ('+user.wertung.toFixed(3)+')':''%><% }%></h5>
+      <h6>Willkommen<% if(user) {%><span> <%= user.nickname%></span><%= user.wertung>-1?' ('+user.wertung.toFixed(3)+')':''%><% }%></h6>
 
       <div id="alertmessage" class="alert" style="display:none;">
          <span id="messagetext"></span>

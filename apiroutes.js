@@ -204,7 +204,7 @@ module.exports = function(app, Settings) {
    });
 
    function einzelwertungRekursiv(spieltag, res, users) {
-      if(spieltag < 35) {
+      if(spieltag <= Settings.aktuellerSpieltag) {
          console.log('Checking Spieltag ' + spieltag + " ...");
          OpenLigaDB.getSpieltag(spieltag, (err, matches) => {
             // einen Spieltag durchgehen
