@@ -7,7 +7,7 @@ var MongoStore = require('connect-mongo')(session);
 
 // MongoDB
 var configDB = require('./config/database.js');
-mongoose.connect(configDB.url);
+mongoose.connect(process.env.MONGODB_URI || configDB.url);
 
 //var UserTipp = require('./model/usertipp.js');
 var Config = require('./model/config.js');
