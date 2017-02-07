@@ -13,7 +13,7 @@ mongoose.connect(configDB.url);
 var Config = require('./model/config.js');
 
 // App Middleware
-var port = process.env.port || 1337;
+app.set('port', (process.env.port || 1337));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -43,8 +43,8 @@ Config.find({}, (err, docs) => {
 });
 
 // Server
-app.listen(port, () => {
-	console.log("Server listening on port " + port + " ...");
+app.listen(app.get('port'), () => {
+	console.log("Server listening on port " + app.get('port') + " ...");
 });
 
 // Testcode
