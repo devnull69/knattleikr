@@ -192,9 +192,12 @@ module.exports = function(app, Settings) {
             UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(otherUser._id)}, (err, otherUserdetail) => {
                andererUser.wertung = otherUserdetail.wertung;
                if(req.session.user) {
-                  UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-                     res.render('user', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser, gravatarhash: Helper.md5(req.session.user.email)});
-                  });
+                  if(req.session.user.nickname == andererUser.nickname)
+                     res.redirect('/');
+                  else
+                     UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+                        res.render('user', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser, gravatarhash: Helper.md5(req.session.user.email)});
+                     });
                } else
                   res.render('user', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser, gravatarhash: null});
             });
