@@ -72,7 +72,7 @@ module.exports = function(app, Settings) {
                   if(tipps[theMatchNr + "_1"].match(/^\d+$/) && tipps[theMatchNr + "_1"].match(/^\d+$/)) {
                      // Beide Tipps sind numerisch
                      var matchDate = moment(match.MatchDateTimeUTC);
-                     if(moment.duration(matchDate.diff(moment())).asHours() > 5) {
+                     if(moment.duration(matchDate.diff(moment())).asHours() > Settings.stundenVorher) {
                         // Tipp ist rechtzeitig
                         // Hier ist also alles ok. Jetzt prüfen, ob Update oder Insert (Parameter upsert:true bei UserTipp.update)
                         var userObjectId = new mongoose.Types.ObjectId(theUser._id);
@@ -90,7 +90,7 @@ module.exports = function(app, Settings) {
                               callback();
                            });
                      } else {
-                        // weniger als 5 Stunden
+                        // weniger als x Stunden vorher
                         fehler = true;
                         callback();
                      }

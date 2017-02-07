@@ -7,6 +7,10 @@
 
    <% include cssAndScripts %>
 
+   <script>
+      var stundenVorher = parseInt('<%= stundenVorherString %>', 10);
+   </script>
+
    <script type="text/javascript" src="/js/app_index.js"></script>
 </head>
 <body ng-controller="knattleikrIndexController">
@@ -80,7 +84,7 @@
                   </tr>
                </tbody>
             </table>
-            <span class="white" ng-show="tippbar"><b>Bitte beachten:</b> Tipps können bis spätestens 5 Stunden vor Spielbeginn abgegeben werden</span><br/>
+            <span class="white" ng-show="tippbar"><b>Bitte beachten:</b> Tipps können bis spätestens <%= stundenVorherString %> vor Spielbeginn abgegeben werden</span><br/>
          </form>
       </div>
       <div class="hidden-xs col-md-2 col-lg-3"></div>

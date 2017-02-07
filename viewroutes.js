@@ -10,13 +10,14 @@ var Helper = require('./util/helper.js');
 module.exports = function(app, Settings) {
    app.get('/', (req, res) => {
       var spieltagNr = Settings.aktuellerSpieltag;
+      var stundenVorherString = Settings.stundenVorher==1?"1 Stunde":Settings.stundenVorher+" Stunden";
       if(req.session.user) {
          UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, gravatarhash: Helper.md5(req.session.user.email), error: req.query.err});
+            res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, gravatarhash: Helper.md5(req.session.user.email), stundenVorherString: stundenVorherString, error: req.query.err});
          });
       }
       else
-         res.render('index', {user: null, userdetail: null, spieltagNr: spieltagNr, error: req.query.err, gravatarhash: null});
+         res.render('index', {user: null, userdetail: null, spieltagNr: spieltagNr, error: req.query.err, gravatarhash: null, stundenVorherString: stundenVorherString});
    });
 
    app.get('/register', (req, res) => {
@@ -170,12 +171,13 @@ module.exports = function(app, Settings) {
    });
 
    app.get('/anleitung', (req, res) => {
+      var stundenVorherString = Settings.stundenVorher==1?"1 Stunde":Settings.stundenVorher+" Stunden";
       if(req.session.user) {
          UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            res.render('anleitung', {user: req.session.user, userdetail: userdetail, gravatarhash: Helper.md5(req.session.user.email)});
+            res.render('anleitung', {user: req.session.user, userdetail: userdetail, gravatarhash: Helper.md5(req.session.user.email), stundenVorherString: stundenVorherString});
          });
       } else
-         res.render('anleitung', {user: null, userdetail: null, gravatarhash: null});
+         res.render('anleitung', {user: null, userdetail: null, gravatarhash: null, stundenVorherString: stundenVorherString});
    });
 
    app.get('/user/:nickname', (req, res) => {

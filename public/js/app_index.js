@@ -43,6 +43,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
    $scope.aktuellerSpieltag = aktuellerSpieltag;
    $scope.spieltagDirty = false;
    $scope.sessionAktiv = sessionAktiv;
+   $scope.stundenVorher = stundenVorher;
 
    // Controller-Methoden
    $scope.getAktuellenSpieltag = function() {
@@ -96,8 +97,8 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
       var returnValue = "";
       $scope.tippbar = false;
       if(match.usertipp) {
-         // Tippdatum minus 5 Stunden noch nicht erreicht? Dann input-Felder anzeigen
-         if(moment.duration(matchDate.diff(moment())).asHours() > 5) {
+         // Tippdatum minus x Stunden noch nicht erreicht? Dann input-Felder anzeigen
+         if(moment.duration(matchDate.diff(moment())).asHours() > $scope.stundenVorher) {
             returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" maxlength="2" value="' + match.usertipp.pointsTeam1 + '" style="width: 25px;"/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" maxlength="2" value="' + match.usertipp.pointsTeam2 + '" style="width: 25px;"/>';
             $scope.tippbar = true;
          }
@@ -105,7 +106,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
             returnValue = match.usertipp.pointsTeam1 + ":" + match.usertipp.pointsTeam2;
          }
       } else {
-         if(moment.duration(matchDate.diff(moment())).asHours() > 5) {
+         if(moment.duration(matchDate.diff(moment())).asHours() > $scope.stundenVorher) {
             returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" maxlength="2" value="" style="width: 25px;"/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" maxlength="2" value="" style="width: 25px;"/>';
             $scope.tippbar = true;
          }
