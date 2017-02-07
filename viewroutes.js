@@ -166,6 +166,15 @@ module.exports = function(app, Settings) {
       });
    });
 
+   app.get('/anleitung', (req, res) => {
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            res.render('anleitung', {user: req.session.user, userdetail: userdetail});
+         });
+      } else
+         res.render('anleitung', {user: null, userdetail: null});
+   });
+
    app.get('/user/:nickname', (req, res) => {
       // Benutzer suchen
       User.findOne({nickname: req.params.nickname}, (err, otherUser) => {
