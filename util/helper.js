@@ -1,3 +1,5 @@
+var crypto = require('crypto');
+
 module.exports = {
    calcPunkte : function(erg1, erg2, tipp1, tipp2) {
       var punkte = 0;
@@ -21,5 +23,9 @@ module.exports = {
          }
       }
       return punkte;
+   },
+
+   md5 : function(mytext) {
+      return crypto.createHash('md5').update(mytext).digest('hex');
    }
 };

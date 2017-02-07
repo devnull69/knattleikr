@@ -1,19 +1,22 @@
 var bcrypt = require('bcrypt-nodejs');
 var mongoose = require('mongoose');
+
 var User = require('./model/user.js');
 var UserDetail = require('./model/userdetail.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
+
+var Helper = require('./util/helper.js');
 
 module.exports = function(app, Settings) {
    app.get('/', (req, res) => {
       var spieltagNr = Settings.aktuellerSpieltag;
       if(req.session.user) {
          UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, error: req.query.err});
+            res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, gravatarhash: Helper.md5(req.session.user.email), error: req.query.err});
          });
       }
       else
-         res.render('index', {user: null, userdetail: null, spieltagNr: spieltagNr, error: req.query.err});
+         res.render('index', {user: null, userdetail: null, spieltagNr: spieltagNr, error: req.query.err, gravatarhash: null});
    });
 
    app.get('/register', (req, res) => {
@@ -141,7 +144,7 @@ module.exports = function(app, Settings) {
       if(req.session.user) {
          UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
             if(userdetail.isAdmin)
-               res.render('admin', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag});
+               res.render('admin', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, gravatarhash: Helper.md5(req.session.user.email)});
             else {
                req.session.user = null;
                req.session.destroy();
@@ -159,20 +162,20 @@ module.exports = function(app, Settings) {
       Einzeltabelle.find({}, (err, tabelle) => {
          if(req.session.user) {
             UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-               res.render('tabelle', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
+               res.render('tabelle', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: Helper.md5(req.session.user.email)});
             });
          } else
-            res.render('tabelle', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
+            res.render('tabelle', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: null});
       });
    });
 
    app.get('/anleitung', (req, res) => {
       if(req.session.user) {
          UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            res.render('anleitung', {user: req.session.user, userdetail: userdetail});
+            res.render('anleitung', {user: req.session.user, userdetail: userdetail, gravatarhash: Helper.md5(req.session.user.email)});
          });
       } else
-         res.render('anleitung', {user: null, userdetail: null});
+         res.render('anleitung', {user: null, userdetail: null, gravatarhash: null});
    });
 
    app.get('/user/:nickname', (req, res) => {
@@ -188,10 +191,10 @@ module.exports = function(app, Settings) {
                andererUser.wertung = otherUserdetail.wertung;
                if(req.session.user) {
                   UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-                     res.render('user', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser});
+                     res.render('user', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser, gravatarhash: Helper.md5(req.session.user.email)});
                   });
                } else
-                  res.render('user', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser});
+                  res.render('user', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser, gravatarhash: null});
             });
          } else {
             res.redirect('/');
