@@ -1,0 +1,8 @@
+{
+   "name": "knattleikr",
+   "description": "Knattleikr - Bundesliga Tippspiel",
+   "repository": "https://github.com/devnull69/knattleikr",
+   "logo": "http://node-js-sample.herokuapp.com/node.svg",
+   "keywords": ["node", "fussball"],
+   "image": "heroku/nodejs"
+}
