@@ -83,6 +83,10 @@ module.exports = function(app, Settings) {
                            {upsert: true}, err => {
                               if(err)
                                  fehler = true;     // technischer Fehler
+
+                              // Loggen, dass Tipp abgegeben wurde
+                              console.log("[" + req.session.user.nickname + "] tippte: " + match.Team1.TeamName + " - " + match.Team2.TeamName + " " + pointsTeam1 + ":" + pointsTeam2); 
+
                               callback();
                            });
                      } else {
