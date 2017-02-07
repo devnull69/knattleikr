@@ -12,7 +12,7 @@
          <ul class="nav navbar-nav navbar-right">
                <li><a href="/tabelle">Tabelle</a></li>
             <% if (user) {%>
-               <% if (user.isAdmin) {%><li><a href="/admin">Admin</a></li><li class="divider"></li><% }%>
+               <% if (userdetail.isAdmin) {%><li><a href="/admin">Admin</a></li><li class="divider"></li><% }%>
                <li><a href="/logout">Ausloggen</a></li>
             <% } else {%>
                <li><a href="/register">Registrieren</a></li>

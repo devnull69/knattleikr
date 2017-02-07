@@ -4,6 +4,7 @@ var Helper = require('./util/helper.js');
 var async = require('async');
 var moment = require('moment');
 var User = require('./model/user.js');
+var UserDetail = require('./model/userdetail.js');
 var UserTipp = require('./model/usertipp.js');
 var Config = require('./model/config.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
@@ -163,40 +164,52 @@ module.exports = function(app, Settings) {
    // Administration
 
    app.post('/api/admin/config', (req, res) => {
-      if(req.session.user && req.session.user.isAdmin) {
-         var aktSpieltag = req.body.aktuellerSpieltag;
-         if(aktSpieltag && aktSpieltag.match(/^\d+$/)) {
-            var neuerWert = parseInt(aktSpieltag, 10);
-            if(neuerWert > 0 && neuerWert < 35) {
-               Settings.aktuellerSpieltag = neuerWert;
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            if(userdetail.isAdmin) {
+               var aktSpieltag = req.body.aktuellerSpieltag;
+               if(aktSpieltag && aktSpieltag.match(/^\d+$/)) {
+                  var neuerWert = parseInt(aktSpieltag, 10);
+                  if(neuerWert > 0 && neuerWert < 35) {
+                     Settings.aktuellerSpieltag = neuerWert;
 
-               // Konfiguration in Datenbank ablegen
-               Config.update({}, {$set: {aktuellerSpieltag: neuerWert}}, err => {
-                  res.json({err: 0, message: 'Die Konfiguration wurde erfolgreich gespeichert.'});
-               });
+                     // Konfiguration in Datenbank ablegen
+                     Config.update({}, {$set: {aktuellerSpieltag: neuerWert}}, err => {
+                        res.json({err: 0, message: 'Die Konfiguration wurde erfolgreich gespeichert.'});
+                     });
+                  }
+               } else {
+                  res.json({err: 1, message: 'Die Änderung der Konfiguration wurde nicht übernommen.'});
+               }
+            } else {
+               res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
             }
-         } else {
-            res.json({err: 1, message: 'Die Änderung der Konfiguration wurde nicht übernommen.'});
-         }
+         });
       } else {
          res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
       }
    });
 
    app.get('/api/admin/einzelwertung', (req, res) => {
-      if(req.session.user && req.session.user.isAdmin) {
-         // Schritt 0: Alle User holen
-         // Schritt 1: Alle Spieltage durchgehen, dann Tipps sichten
-         // Schritt 2: Benutzer updaten
-         // Schritt 3: Tabelle berechnen aus Usern
-         var allUsers = {};
-         User.find({}, {}, (err, users) => {
-            async.forEach(users, (user, callback) => {
-               allUsers[user._id] = {nickname: user.nickname, punkte: 0, spiele: 0, wertung: -1};
-               callback();
-            }, err => {
-               einzelwertungRekursiv(1, res, allUsers);
-            });
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            if(userdetail.isAdmin) {
+               // Schritt 0: Alle User holen
+               // Schritt 1: Alle Spieltage durchgehen, dann Tipps sichten
+               // Schritt 2: Benutzer updaten
+               // Schritt 3: Tabelle berechnen aus Usern
+               var allUsers = {};
+               User.find({}, {}, (err, users) => {
+                  async.forEach(users, (user, callback) => {
+                     allUsers[user._id] = {nickname: user.nickname, punkte: 0, spiele: 0, wertung: -1};
+                     callback();
+                  }, err => {
+                     einzelwertungRekursiv(1, res, allUsers);
+                  });
+               });
+            } else {
+               res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+            }
          });
       } else {
          res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
@@ -235,9 +248,9 @@ module.exports = function(app, Settings) {
             });
          });         
       } else {
-         // User zurückschreiben
+         // Userdetails zurückschreiben
          async.forEach(Object.keys(users), (userid, callback) => {
-            User.update({_id: new mongoose.Types.ObjectId(userid)}, {$set: {punkte: users[userid].punkte, spiele: users[userid].spiele, wertung: users[userid].wertung}}, err => {
+            UserDetail.update({fiUser: new mongoose.Types.ObjectId(userid)}, {$set: {punkte: users[userid].punkte, spiele: users[userid].spiele, wertung: users[userid].wertung}}, err => {
                callback();
             });
          }, err => {

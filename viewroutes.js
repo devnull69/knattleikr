@@ -1,14 +1,20 @@
 var bcrypt = require('bcrypt-nodejs');
+var mongoose = require('mongoose');
 var User = require('./model/user.js');
+var UserDetail = require('./model/userdetail.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
 
 module.exports = function(app, Settings) {
    app.get('/', (req, res) => {
       var spieltagNr = Settings.aktuellerSpieltag;
-      if(req.session.user)
-         res.render('index', {user: req.session.user, spieltagNr: spieltagNr, error: req.query.err});
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            console.dir(userdetail);
+            res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, error: req.query.err});
+         });
+      }
       else
-         res.render('index', {user: null, spieltagNr: spieltagNr, error: req.query.err});
+         res.render('index', {user: null, userdetail: null, spieltagNr: spieltagNr, error: req.query.err});
    });
 
    app.get('/register', (req, res) => {
@@ -69,8 +75,15 @@ module.exports = function(app, Settings) {
                if(err) {
                   throw err;
                }
-               req.session.user = newUser;
-               res.redirect('/');
+
+               // Userdetails erzeugen
+               var detail = new UserDetail();
+               detail.fiUser = new mongoose.Types.ObjectId(newUser._id);
+               detail.memberOf = null;
+               detail.save(err => {
+                  req.session.user = newUser;
+                  res.redirect('/');
+               });
             });
          }
       });
@@ -126,8 +139,16 @@ module.exports = function(app, Settings) {
    });
 
    app.get('/admin', (req, res) => {
-      if(req.session.user && req.session.user.isAdmin) {
-         res.render('admin', {user: req.session.user, spieltagNr: Settings.aktuellerSpieltag});
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            if(userdetail.isAdmin)
+               res.render('admin', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag});
+            else {
+               req.session.user = null;
+               req.session.destroy();
+               res.redirect('/?err=1');
+            }
+         });
       } else {
          req.session.user = null;
          req.session.destroy();
@@ -137,27 +158,33 @@ module.exports = function(app, Settings) {
 
    app.get('/tabelle', (req, res) => {
       Einzeltabelle.find({}, (err, tabelle) => {
-         if(req.session.user)
-            res.render('tabelle', {user: req.session.user, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
-         else
-            res.render('tabelle', {user: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
+         if(req.session.user) {
+            UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+               res.render('tabelle', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
+            });
+         } else
+            res.render('tabelle', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle});
       });
    });
 
    app.get('/user/:nickname', (req, res) => {
-      if(req.session.user)
-         currentUser = req.session.user;
-      else
-         currentUser = null;
-
       // Benutzer suchen
       User.findOne({nickname: req.params.nickname}, (err, otherUser) => {
          if(otherUser) {
             var andererUser = {};
             andererUser.nickname = otherUser.nickname;
             andererUser.userid = otherUser._id.toString();
-            andererUser.wertung = otherUser.wertung;
-            res.render('user', {user: currentUser, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser});
+
+            // Wertung aus den Userdetails
+            UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(otherUser._id)}, (err, otherUserdetail) => {
+               andererUser.wertung = otherUserdetail.wertung;
+               if(req.session.user) {
+                  UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+                     res.render('user', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser});
+                  });
+               } else
+                  res.render('user', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser});
+            });
          } else {
             res.redirect('/');
          }
