@@ -13,7 +13,7 @@ mongoose.connect(process.env.MONGODB_URI || configDB.url);
 var Config = require('./model/config.js');
 
 // App Middleware
-app.set('port', (process.env.port || 1337));
+app.set('port', (process.env.PORT || 1337));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
