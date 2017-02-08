@@ -11,6 +11,8 @@
       var stundenVorher = parseInt('<%= stundenVorherString %>', 10);
    </script>
 
+   <script type="text/javascript" src="/js/jquery.event.move.js"></script>
+   <script type="text/javascript" src="/js/jquery.event.swipe.js"></script>
    <script type="text/javascript" src="/js/app_index.js"></script>
 </head>
 <body ng-controller="knattleikrIndexController">
@@ -33,7 +35,7 @@
       <div class="hidden-xs col-md-2 col-lg-3"></div>
       <div class="col-xs-12 col-md-8 col-lg-6">
          <h4><a href="#" ng-click="getVorherigenSpieltag()"><span ng-show="aktuellerSpieltag>1" class="glyphicon glyphicon-triangle-left"></span></a> Spieltag {{aktuellerSpieltag}} <a href="#" ng-click="getNaechstenSpieltag()"><span ng-show="aktuellerSpieltag<34" class="glyphicon glyphicon-triangle-right"></span></a> <i id="spinner" class="fa fa-refresh fa-spin" style="display:none"></i></h4>
-         <table class="table" ng-show="matchesFinished.length > 0">
+         <table class="table swipeable" ng-show="matchesFinished.length > 0">
             <thead>
                <tr>
                   <th colspan="2">Mannschaften</th>
@@ -63,7 +65,7 @@
          </table>
          <button ng-show="spieltagDirty" type="button" class="btn btn-lg" ng-click="saveTipps()">Jetzt Tipps abgeben</button>
          <form action="#" id="tippform">
-            <table class="table" ng-show="matchesUnFinished.length > 0">
+            <table class="table swipeable" ng-show="matchesUnFinished.length > 0">
                <thead>
                   <tr>
                      <th colspan="2">Mannschaften</th>

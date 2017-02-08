@@ -11,6 +11,8 @@
       otherUserId = '<%= otherUser.userid %>';
    </script>
 
+   <script type="text/javascript" src="/js/jquery.event.move.js"></script>
+   <script type="text/javascript" src="/js/jquery.event.swipe.js"></script>
    <script type="text/javascript" src="/js/app_user.js"></script>
 </head>
 <body ng-controller="knattleikrUserController">
@@ -31,7 +33,7 @@
          <h4>Userseite - <%= otherUser.nickname %><%= otherUser.wertung>-1?" (" + otherUser.wertung.toFixed(3) + ")":""%></h4>
          <hr/>
          <h4><a href="#" ng-click="getVorherigenSpieltag()"><span ng-show="aktuellerSpieltag>1" class="glyphicon glyphicon-triangle-left"></span></a> Spieltag {{aktuellerSpieltag}} <a href="#" ng-click="getNaechstenSpieltag()"><span ng-show="aktuellerSpieltag<34" class="glyphicon glyphicon-triangle-right"></span></a> <i id="spinner" class="fa fa-refresh fa-spin" style="display:none"></i></h4>
-         <table class="table" ng-show="matchesFinished.length > 0">
+         <table class="table swipeable" ng-show="matchesFinished.length > 0">
             <thead>
                <tr>
                   <th colspan="2">Mannschaften</th>
@@ -56,7 +58,7 @@
             </tbody>
          </table>
 
-         <table class="table" ng-show="matchesUnFinished.length > 0">
+         <table class="table swipeable" ng-show="matchesUnFinished.length > 0">
             <thead>
                <tr>
                   <th colspan="2">Mannschaften</th>

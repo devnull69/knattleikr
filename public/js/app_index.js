@@ -148,6 +148,27 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
       $scope.spieltagDirty = true;
       $scope.$apply();
    });
+
+   // Swipe-Handler binden
+   $('.swipeable').on('swipeleft', function() {
+      $scope.$apply(function() {
+         $scope.getNaechstenSpieltag();
+      });
+   });
+   $('.swipeable').on('swiperight', function() {
+      $scope.$apply(function() {
+         $scope.getVorherigenSpieltag();
+      });
+   });
+   $('.swipeable').on('move', function(e) {
+      if(e.distX > 0)
+         $(this).css({marginLeft: 10 });
+      else
+         $(this).css({marginLeft: -10 });
+   });
+   $('.swipeable').on('moveend', function(e) {
+      $(this).css({marginLeft: 0 });
+   });
 });
 
 function showMessage(type, message) {
