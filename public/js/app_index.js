@@ -31,7 +31,7 @@ knattleikrIndexApp.factory('apiFactory', function($http) {
       return $http.get(urlBase + 'spieltag/' + spieltagNr + getRandomizer);
    };
 
-   apiFactory.tippsAbgeben = function(spieltagNr, jsonData) {
+   apiFactory.tippAbgeben = function(spieltagNr, jsonData) {
       return $http.post(urlBase + 'spieltag/' + spieltagNr, jsonData);
    };
 
@@ -41,13 +41,11 @@ knattleikrIndexApp.factory('apiFactory', function($http) {
 knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce, $window, apiFactory) {
 
    $scope.aktuellerSpieltag = aktuellerSpieltag;
-   $scope.spieltagDirty = false;
    $scope.sessionAktiv = sessionAktiv;
    $scope.stundenVorher = stundenVorher;
 
    // Controller-Methoden
    $scope.getAktuellenSpieltag = function() {
-      $scope.spieltagDirty = false;
       $('#spinner').show();
       apiFactory.getSpieltag($scope.aktuellerSpieltag).then(response => {
          $scope.wertung = response.data.wertung;
@@ -121,23 +119,35 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
          return match['Team'+teamNr].TeamName;
    };
 
-   $scope.saveTipps = function() {
-      var jsonData = $('#tippform').serializeArray();
-      // Request-Array in Objekt mit Key=MatchId_X umwandeln
+   // $scope.saveTipps = function() {
+   //    var jsonData = $('#tippform').serializeArray();
+   //    // Request-Array in Objekt mit Key=MatchId_X umwandeln
+   //    var requestObject = {};
+   //    for(i=0; i<jsonData.length; i++) {
+   //       requestObject[jsonData[i].name] = jsonData[i].value;
+   //    }
+   //    apiFactory.tippsAbgeben($scope.aktuellerSpieltag, JSON.stringify(requestObject)).then(function(response) {
+   //       window.scrollTo(0,0);
+   //       if(response.data.err>0) {
+   //          showMessage("danger", response.data.message);
+   //       } else {
+   //          showMessage("success", response.data.message);
+   //       }
+   //       $scope.getAktuellenSpieltag();
+   //    });
+   // };
+
+   $scope.saveTipp = function(matchNr) {
       var requestObject = {};
-      for(i=0; i<jsonData.length; i++) {
-         requestObject[jsonData[i].name] = jsonData[i].value;
-      }
-      apiFactory.tippsAbgeben($scope.aktuellerSpieltag, JSON.stringify(requestObject)).then(function(response) {
-         window.scrollTo(0,0);
+      requestObject[matchNr+"_1"] = document.getElementsByName(matchNr + "_1")[0].value
+      requestObject[matchNr+"_2"] = document.getElementsByName(matchNr + "_2")[0].value
+      apiFactory.tippAbgeben($scope.aktuellerSpieltag, JSON.stringify(requestObject)).then(function(response) {
          if(response.data.err>0) {
+            window.scrollTo(0,0);
             showMessage("danger", response.data.message);
-         } else {
-            showMessage("success", response.data.message);
          }
-         $scope.getAktuellenSpieltag();
+         //$scope.getAktuellenSpieltag();
       });
-      $scope.spieltagDirty = false;
    };
 
    // sofort ausführen
@@ -145,8 +155,18 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
 
    // Change-Handler binden
    $(document).on('change', 'input.tipp', function() {
-      $scope.spieltagDirty = true;
-      $scope.$apply();
+      // Ist der Tipp komplett (beide Felder gefüllt), dann Tipp abgeben
+      var feldName = $(this).prop('name');
+      var matchNr = feldName.match(/^(\d+)/)[1];
+      var teamNr = feldName.match(/(\d+)$/)[1];
+
+      var teamA = this.value;
+      var teamB = document.getElementsByName(matchNr + "_" + (teamNr%2+1))[0].value;
+
+      if ((teamA != "" && teamB != "") || (teamA == "" && teamB == ""))
+         $scope.$apply(function() {
+            $scope.saveTipp(matchNr);
+         });
    });
 
    // Swipe-Handler binden
@@ -161,9 +181,9 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
       });
    });
    $('.swipeable').on('move', function(e) {
-      if(e.distX > 0)
+      if(e.distX > 80)
          $(this).css({marginLeft: 10 });
-      else
+      else if(e.distX < -80)
          $(this).css({marginLeft: -10 });
    });
    $('.swipeable').on('moveend', function(e) {

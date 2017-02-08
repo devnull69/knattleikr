@@ -56,6 +56,7 @@ module.exports = function(app, Settings) {
       });
    });
 
+   // Einen Einzeltipp abgeben
    app.post('/api/spieltag/:spieltag', (req, res) => {
       var tipps = req.body;
       var fehler = false;
@@ -69,7 +70,7 @@ module.exports = function(app, Settings) {
                // Ist Tipp vollständig, rechtzeitig und numerisch?
                if(tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"]) {
                   // Beide Tipps sind da
-                  if(tipps[theMatchNr + "_1"].match(/^\d+$/) && tipps[theMatchNr + "_1"].match(/^\d+$/)) {
+                  if(tipps[theMatchNr + "_1"].match(/^\d+$/) && tipps[theMatchNr + "_2"].match(/^\d+$/)) {
                      // Beide Tipps sind numerisch
                      var matchDate = moment(match.MatchDateTimeUTC);
                      if(moment.duration(matchDate.diff(moment())).asHours() > Settings.stundenVorher) {
@@ -105,12 +106,16 @@ module.exports = function(app, Settings) {
                   callback();
                } else {
                   // Tipp gar nicht da, wurde evtl. entfernt und muss dann aus den Usertipps gelöscht werden
-                  var userObjectId = new mongoose.Types.ObjectId(theUser._id);
-                  UserTipp.remove({fiUser: userObjectId, matchNr: theMatchNr}, err => {
-                     if(err)
-                        fehler = true;
+                  if(tipps[theMatchNr + "_1"] == "" && tipps[theMatchNr + "_2"] == "") {
+                     var userObjectId = new mongoose.Types.ObjectId(theUser._id);
+                     UserTipp.remove({fiUser: userObjectId, matchNr: theMatchNr}, err => {
+                        console.log("[" + req.session.user.nickname + "] löschte: " + match.Team1.TeamName + " - " + match.Team2.TeamName); 
+                        if(err)
+                           fehler = true;
+                        callback();
+                     });
+                  } else
                      callback();
-                  });
                }
             }, err => {
                // Async loop finished
