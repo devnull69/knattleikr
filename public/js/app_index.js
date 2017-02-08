@@ -35,6 +35,10 @@ knattleikrIndexApp.factory('apiFactory', function($http) {
       return $http.post(urlBase + 'spieltag/' + spieltagNr, jsonData);
    };
 
+   apiFactory.getSpieltagTabelle = function(spieltagNr) {
+      return $http.get(urlBase + "spieltag/" + spieltagNr + "/tabelle" + getRandomizer);
+   };
+
    return apiFactory;
 });
 
@@ -43,6 +47,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
    $scope.aktuellerSpieltag = aktuellerSpieltag;
    $scope.sessionAktiv = sessionAktiv;
    $scope.stundenVorher = stundenVorher;
+   $scope.tabelleninhalt = [];
 
    // Controller-Methoden
    $scope.getAktuellenSpieltag = function() {
@@ -61,6 +66,10 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
          }
 
          $('#spinner').hide();
+
+         apiFactory.getSpieltagTabelle($scope.aktuellerSpieltag).then(response => {
+            $scope.tabelleninhalt = response.data;
+         });
 
          // Ist Session inaktiv geworden? Dann refresh und Meldung anzeigen
          if($scope.sessionAktiv && !response.data.sessionOk)

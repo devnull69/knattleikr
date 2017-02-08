@@ -88,6 +88,31 @@
             </table>
             <span class="white" ng-show="tippbar"><b>Bitte beachten:</b> Tipps können bis spätestens <%= stundenVorherString %> vor Spielbeginn abgegeben werden</span><br/>
          </form>
+
+         <div ng-show="tabelleninhalt.length > 0">
+            <h4>Spieltagwertung</h4>
+            <table class="table">
+               <thead>
+                  <tr>
+                     <th>Pos.</th>
+                     <th>User</th>
+                     <th>Pkt.</th>
+                     <th>Spiele</th>
+                     <th>Wertung</th>
+                  </tr>
+               </thead>
+               <tbody>
+                     <tr ng-repeat="eintrag in tabelleninhalt">
+                        <td>{{$index==0?1:(eintrag.wertung!=tabelleninhalt[$index - 1].wertung?$index+1:"")}}</td>
+                        <td><a class="userlink" ng-href="/user/{{eintrag.nickname}}">{{eintrag.nickname}}</a></td>
+                        <td>{{eintrag.punkte}}</td>
+                        <td>{{eintrag.spiele}}</td>
+                        <td>{{eintrag.wertung.toFixed(3)}}</td>
+                     </tr>
+               </tbody>
+            </table>
+         </div>
+
       </div>
       <div class="hidden-xs col-md-2 col-lg-3"></div>
    </div>

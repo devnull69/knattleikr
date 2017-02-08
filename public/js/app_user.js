@@ -114,9 +114,9 @@ knattleikrUserApp.controller('knattleikrUserController', function($scope, $sce, 
       });
    });
    $('.swipeable').on('move', function(e) {
-      if(e.distX > 0)
+      if(e.distX > 80)
          $(this).css({marginLeft: 10 });
-      else
+      else if(e.distX < -80)
          $(this).css({marginLeft: -10 });
    });
    $('.swipeable').on('moveend', function(e) {

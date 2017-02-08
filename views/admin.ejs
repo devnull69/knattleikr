@@ -23,18 +23,23 @@
       <div class="hidden-xs col-md-2 col-lg-3"></div>
       <div class="col-xs-12 col-md-8 col-lg-6">
          <h4>Administration</h4>
-         <form action="#" method="post">
-            <div class="form-group">
-               <label class="white">Aktueller Spieltag</label>
-               <input type="text" class="form-control" name="aktuellerSpieltag" ng-model="aktuellerSpieltag"/>
-            </div>
+         <div class="form-group">
+            <label class="white">Aktueller Spieltag</label>
+            <input type="text" class="form-control" name="aktuellerSpieltag" ng-model="aktuellerSpieltag"/>
+         </div>
 
-            <div class="form-group">
-               <button type="button" ng-click="saveConfig()" class="btn btn-lg">Speichern</button>
-            </div>
-         </form>
+         <div class="form-group">
+            <button type="button" ng-click="saveConfig()" class="btn btn-lg">Speichern</button>
+         </div>
+
          <hr>
+
          <button type="button" ng-click="einzelwertung()" class="btn btn-lg">Einzelwertung berechnen <i id="spinner_einzelwertung" class="fa fa-refresh fa-spin" style="display:none"></i></button>
+
+         <hr>
+
+         <input type="text" class="form-control" ng-model="wertungsSpieltag"/><br/>
+         <button type="button" ng-click="spieltagwertung()" class="btn btn-lg">Spieltagwertung berechnen <i id="spinner_spieltagwertung" class="fa fa-refresh fa-spin" style="display:none"></i></button>
       </div>
       <div class="hidden-xs col-md-2 col-lg-3"></div>
    </div>
