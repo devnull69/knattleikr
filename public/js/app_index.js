@@ -154,19 +154,22 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
    $scope.getAktuellenSpieltag();
 
    // Change-Handler binden
-   $(document).on('change', 'input.tipp', function() {
-      // Ist der Tipp komplett (beide Felder gefüllt), dann Tipp abgeben
-      var feldName = $(this).prop('name');
-      var matchNr = feldName.match(/^(\d+)/)[1];
-      var teamNr = feldName.match(/(\d+)$/)[1];
+   $(document).on('keyup', 'input.tipp', function(e) {
+      console.log(e.keyCode);
+      if((e.keyCode >= 48 && e.keyCode <= 57) || e.keyCode == 32 || e.keyCode == 8 || e.keyCode == 46) {
+         // Ist der Tipp komplett (beide Felder gefüllt), dann Tipp abgeben
+         var feldName = $(this).prop('name');
+         var matchNr = feldName.match(/^(\d+)/)[1];
+         var teamNr = feldName.match(/(\d+)$/)[1];
 
-      var teamA = this.value;
-      var teamB = document.getElementsByName(matchNr + "_" + (teamNr%2+1))[0].value;
+         var teamA = this.value;
+         var teamB = document.getElementsByName(matchNr + "_" + (teamNr%2+1))[0].value;
 
-      if ((teamA != "" && teamB != "") || (teamA == "" && teamB == ""))
-         $scope.$apply(function() {
-            $scope.saveTipp(matchNr);
-         });
+         if ((teamA != "" && teamB != "") || (teamA == "" && teamB == ""))
+            $scope.$apply(function() {
+               $scope.saveTipp(matchNr);
+            });
+      }
    });
 
    // Swipe-Handler binden
