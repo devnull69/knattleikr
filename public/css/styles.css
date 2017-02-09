@@ -11,3 +11,10 @@ body {
 .white {
    color: white;
 }
+
+.meldung {
+   color: #aaaaaa;
+   border: 2px solid #aaaaaa;
+   border-radius: 5px;
+   padding: 20px;
+}

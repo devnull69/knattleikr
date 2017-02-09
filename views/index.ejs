@@ -21,6 +21,10 @@
    
    <div class="container" style="margin-top: 70px;">
       <h6>Willkommen<% if(user) {%><span> <%= user.nickname%></span><%= userdetail.wertung>-1?' ('+userdetail.wertung.toFixed(3)+')':''%><% }%></h6>
+      <% if(user && !userdetail.isAktiv) {%>
+         <!-- User inaktiv -->
+         <div class="meldung">Du hast mehr als <%= maxVerpassteSpiele%> Spiele verpasst und wurdest deaktiviert. Du wirst daher nicht mehr in der Gesamtwertung geführt.</div>
+      <% }%>
       <div class="alert alert-danger alert-dismissable" <% if(!error) {%>style="display:none;"<% }%>>
          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
          Deine Sitzung ist abgelaufen. Bitte logge Dich neu ein!

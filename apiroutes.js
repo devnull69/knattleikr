@@ -10,6 +10,8 @@ var Config = require('./model/config.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
 var Spieltagtabelle = require('./model/spieltagtabelle.js');
 
+var gesamtzahlSpiele = 0;
+
 module.exports = function(app, Settings) {
    
    app.get('/api/spieltag/:spieltag', (req, res) => {
@@ -223,6 +225,7 @@ module.exports = function(app, Settings) {
                      allUsers[user._id] = {nickname: user.nickname, punkte: 0, spiele: 0, wertung: -1};
                      callback();
                   }, err => {
+                     gesamtzahlSpiele = 0;
                      einzelwertungRekursiv(1, res, allUsers);
                   });
                });
@@ -242,6 +245,7 @@ module.exports = function(app, Settings) {
             async.forEach(matches, (match, callback) => {
                if(match.MatchIsFinished) {
                   var theMatchNr = match.MatchID;
+                  gesamtzahlSpiele++;
 
                   // Alle Tipps dazu suchen
                   UserTipp.find({matchNr: theMatchNr}, (err, usertipps) => {
@@ -268,7 +272,13 @@ module.exports = function(app, Settings) {
       } else {
          // Userdetails zurückschreiben
          async.forEach(Object.keys(users), (userid, callback) => {
-            UserDetail.update({fiUser: new mongoose.Types.ObjectId(userid)}, {$set: {punkte: users[userid].punkte, spiele: users[userid].spiele, wertung: users[userid].wertung}}, err => {
+            
+            // Deaktivieren?
+            var isAktiv = true;
+            if(users[userid].spiele + Settings.maxVerpassteSpiele < gesamtzahlSpiele)
+               isAktiv = false;
+
+            UserDetail.update({fiUser: new mongoose.Types.ObjectId(userid)}, {$set: {punkte: users[userid].punkte, spiele: users[userid].spiele, wertung: users[userid].wertung, isAktiv: isAktiv}}, err => {
                callback();
             });
          }, err => {
@@ -276,8 +286,11 @@ module.exports = function(app, Settings) {
 
             // Users-Objekt in Array umwandeln
             var userArray = [];
-            for(userid in users)
-               userArray.push(users[userid]);
+            for(userid in users) {
+               // inaktive herausfiltern
+               if(users[userid].spiele + Settings.maxVerpassteSpiele >= gesamtzahlSpiele)
+                  userArray.push(users[userid]);
+            }
 
             userArray.sort((user1, user2) => {
                return user2.wertung - user1.wertung;

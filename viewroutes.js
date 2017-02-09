@@ -10,14 +10,15 @@ var Helper = require('./util/helper.js');
 module.exports = function(app, Settings) {
    app.get('/', (req, res) => {
       var spieltagNr = Settings.aktuellerSpieltag;
+      var maxVerpassteSpiele = Settings.maxVerpassteSpiele;
       var stundenVorherString = Settings.stundenVorher==1?"1 Stunde":Settings.stundenVorher+" Stunden";
       if(req.session.user) {
          UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, gravatarhash: Helper.md5(req.session.user.email), stundenVorherString: stundenVorherString, error: req.query.err});
+            res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, gravatarhash: Helper.md5(req.session.user.email), stundenVorherString: stundenVorherString, error: req.query.err, maxVerpassteSpiele: maxVerpassteSpiele});
          });
       }
       else
-         res.render('index', {user: null, userdetail: null, spieltagNr: spieltagNr, error: req.query.err, gravatarhash: null, stundenVorherString: stundenVorherString});
+         res.render('index', {user: null, userdetail: null, spieltagNr: spieltagNr, error: req.query.err, gravatarhash: null, stundenVorherString: stundenVorherString, maxVerpassteSpiele: null});
    });
 
    app.get('/register', (req, res) => {
