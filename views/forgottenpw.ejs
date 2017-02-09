@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
+   <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width">
-	<title>KNATTLEIKR - Einloggen</title>
+   <title>KNATTLEIKR - Passwort vergessen</title>
    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
    <link rel="stylesheet" type="text/css" href="/css/styles.css ">
    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css">
@@ -24,28 +24,30 @@
          <div class="navbar-collapse collapse" id="navbar-main" aria-expanded="true">
             <ul class="nav navbar-nav navbar-right">
                <li><a href="/register">Registrieren</a></li>
+               <li><a href="/login">Einloggen</a></li>
             </ul>
          </div>
       </div>
    </nav>
-   <div style="min-height: 500px;margin-top: 60px;">
+   <div style="min-height: 500px; margin-top: 60px;">
       <div class="col-sm-6 col-sm-offset-3">
+         <% if (errmessage.length > 0) {%>
+            <div class="alert alert-danger"><%= errmessage %></div>
+         <% }%>
          <% if (message.length > 0) {%>
-            <div class="alert alert-danger"><%= message %></div>
+            <div class="alert alert-success"><%= message %></div>
          <% }%>
 
-         <form action="/login" method="post">
+         <h4><span class="fa fa-sign-in"></span> Passwort vergessen</h4>
+         <form action="/forgottenpw" method="post">
             <div class="form-group">
-               <label class="white">E-Mail oder Anzeigename</label>
-               <input type="text" class="form-control" name="identifier" />
-            </div>
-            <div class="form-group">
-               <label class="white">Passwort</label>
-               <input type="password" class="form-control" name="password" />
+               <label class="white">E-Mail</label>
+               <input type="text" class="form-control" name="email" />
             </div>
 
-            <button class="btn btn-lg">Einloggen</button>
-            <a href="/forgottenpw">Passwort vergessen?</a>
+            <div class="form-group">
+               <button class="btn btn-lg">Passwort anfordern</button>
+            </div>
          </form>
       </div>
    </div>

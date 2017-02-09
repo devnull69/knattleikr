@@ -1,5 +1,7 @@
 var bcrypt = require('bcrypt-nodejs');
 var mongoose = require('mongoose');
+var Mailer = require('sendgrid').mail;
+var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 
 var User = require('./model/user.js');
 var UserDetail = require('./model/userdetail.js');
@@ -126,7 +128,11 @@ module.exports = function(app, Settings) {
          if(user) {
             if(bcrypt.compareSync(password, user.password)) {
                req.session.user = user;
-               res.redirect('/');
+
+               // forgottenPwKey löschen, da login erfolgreich war
+               User.update(searchObject, {$set: {forgottenPwKey: ''}}, (err, results) => {
+                  res.redirect('/');
+               });
             } else {
                return res.render('login', {message: 'E-Mail/Anzeigename oder Passwort falsch'});
             }
@@ -140,6 +146,123 @@ module.exports = function(app, Settings) {
       req.session.user = null;
       req.session.destroy();
       res.redirect('/');
+   });
+
+   app.get('/forgottenpw', (req, res) => {
+      if(!req.session.user)
+         res.render('forgottenpw', {message: '', errmessage: ''});
+      else
+         res.redirect('/');
+   });
+
+   app.post('/forgottenpw', (req, res) => {
+      var email = req.body.email;
+
+      // Pflichtfelder?
+      if(email == '')
+         return res.render('forgottenpw', {errmessage: 'Email-Feld muss ausgefüllt werden', message: ''});
+
+      // User mit dieser E-Mail finden und key generieren
+      User.findOne({email: email}, (err, user) => {
+         if(err)
+            return res.render('forgottenpw', {errmessage: 'Es ist ein Fehler aufgetreten', message: ''});
+         if(!user)
+            return res.render('forgottenpw', {errmessage: 'Ungültige E-Mail-Adresse', message: ''});
+
+         var forgottenPwKey = Helper.md5(getRandomString(15));
+
+         // Key speichern und Mail senden
+         User.update({email: email}, {$set: {forgottenPwKey: forgottenPwKey}}, (err, results) => {
+            var from_email = new Mailer.Email('noreply@knattleikr.herokuapp.com', 'Knattleikr - Bundesligatippspiel');
+            var to_email = new Mailer.Email(email);
+            var subject = 'Passwort zurücksetzen';
+
+            var contentBody = '<html><head><meta charset="UTF-8"/></head><body>';
+            contentBody += '<p>Hallo ' + user.nickname + '</p>';
+            contentBody += '<p>Du erhältst diese Mail, da Du Dein Passwort auf KNATTLEIKR zurücksetzen möchtest.</p>';
+            contentBody += '<a href="' + Settings.hostUrl + '/changepw?key=' + forgottenPwKey + '">Hier klicken zum Zurücksetzen Deines Passworts</a>';
+            contentBody += '<p>Liebe Grüße<br/>Dein KNATTLEIKR-Team</p>'
+            contentBody += '</body></html>';
+
+            var content = new Mailer.Content('text/html', contentBody);
+            var mail = new Mailer.Mail(from_email, subject, to_email, content);
+
+            var request = sg.emptyRequest({
+              method: 'POST',
+              path: '/v3/mail/send',
+              body: mail.toJSON(),
+            });
+
+            sg.API(request, function(error, response) {
+               if(error)
+                  return res.render('forgottenpw', {errmessage: 'Fehler beim Senden der Mail', message: ''});
+               res.render('forgottenpw', {message: 'Es wurde eine E-Mail an Dich gesendet mit weiteren Anweisungen.', errmessage: ''});
+            });      
+         });
+      });
+   });
+
+   function getRandomString(len) {
+      var charString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!§$%&/()=?#+*~-_.:,;<>|@€^°";
+      var result = "";
+      for(i=0; i<len; i++) {
+         result += charString.charAt(Math.floor(Math.random()*charString.length));
+      }
+      return result;
+   }
+
+   app.get('/changepw', (req, res) => {
+      if(req.session.user)
+         return res.redirect('/');
+      if(req.query.key) {
+         // forgottenPwKey suchen
+         User.findOne({forgottenPwKey: req.query.key}, (err, user) => {
+            if(err)
+               return res.redirect('/?err=1');
+            if(!user)
+               return res.redirect('/?err=1');
+
+            res.render('changepw', {message: '', errmessage: '', forgottenPwKey: req.query.key});
+         });
+      }
+      else
+         res.redirect('/?err=1');
+   });
+
+   app.post('/changepw', (req, res) => {
+      var forgottenPwKey = req.body.forgottenPwKey;
+      var password1 = req.body.password1;
+      var password2 = req.body.password2;
+
+      // Pflichtfelder?
+      if(forgottenPwKey == '' || password1 == '' || password2 == '')
+         return res.render('changepw', {errmessage: 'Fehlende Information', message: '', forgottenPwKey: forgottenPwKey});
+
+      // Passwörter gleich?
+      if(password1 != password2)
+         return res.render('changepw', {errmessage: 'Die Passwörter stimmen nicht überein', message: '', forgottenPwKey: forgottenPwKey});
+
+      // Bcrypt anwenden
+      var salt = bcrypt.genSaltSync(9);
+      var hash = bcrypt.hashSync(password1, salt);
+
+      // forgottenPwKey suchen
+      User.findOne({forgottenPwKey: forgottenPwKey}, (err, user) => {
+         if(err)
+            return res.render('changepw', {errmessage: 'Es ist ein Fehler aufgetreten', message: '', forgottenPwKey: forgottenPwKey});
+
+         if(!user)
+            return res.redirect('/?err=1');
+
+         user.password = hash;
+         user.forgottenPwKey = "";
+         user.save(err => {
+            if(err)
+               return res.render('changepw', {errmessage: 'Es ist ein Fehler aufgetreten', message: '', forgottenPwKey: forgottenPwKey});
+            req.session.user = user;
+            res.redirect('/');
+         });
+      });
    });
 
    app.get('/admin', (req, res) => {

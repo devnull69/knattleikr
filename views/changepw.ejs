@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
+   <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width">
-	<title>KNATTLEIKR - Einloggen</title>
+   <title>KNATTLEIKR - Passwort zurücksetzen</title>
    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
    <link rel="stylesheet" type="text/css" href="/css/styles.css ">
    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css">
@@ -24,28 +24,35 @@
          <div class="navbar-collapse collapse" id="navbar-main" aria-expanded="true">
             <ul class="nav navbar-nav navbar-right">
                <li><a href="/register">Registrieren</a></li>
+               <li><a href="/login">Einloggen</a></li>
             </ul>
          </div>
       </div>
    </nav>
-   <div style="min-height: 500px;margin-top: 60px;">
+   <div style="min-height: 500px; margin-top: 60px;">
       <div class="col-sm-6 col-sm-offset-3">
+         <% if (errmessage.length > 0) {%>
+            <div class="alert alert-danger"><%= errmessage %></div>
+         <% }%>
          <% if (message.length > 0) {%>
-            <div class="alert alert-danger"><%= message %></div>
+            <div class="alert alert-success"><%= message %></div>
          <% }%>
 
-         <form action="/login" method="post">
+         <h4><span class="fa fa-sign-in"></span> Passwort zurücksetzen</h4>
+         <form action="/changepw" method="post">
+            <input type="hidden" name="forgottenPwKey" value="<%= forgottenPwKey %>" />
             <div class="form-group">
-               <label class="white">E-Mail oder Anzeigename</label>
-               <input type="text" class="form-control" name="identifier" />
+               <label class="white">Neues Passwort</label>
+               <input type="password" class="form-control" name="password1" />
             </div>
             <div class="form-group">
-               <label class="white">Passwort</label>
-               <input type="password" class="form-control" name="password" />
+               <label class="white">Neues Passwort wiederholen</label>
+               <input type="password" class="form-control" name="password2" />
             </div>
 
-            <button class="btn btn-lg">Einloggen</button>
-            <a href="/forgottenpw">Passwort vergessen?</a>
+            <div class="form-group">
+               <button class="btn btn-lg">Passwort ändern</button>
+            </div>
          </form>
       </div>
    </div>

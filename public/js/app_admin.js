@@ -77,6 +77,7 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, apiF
          }
       });
    };
+
 });
 
 function showMessage(type, message) {
