@@ -31,9 +31,9 @@ knattleikrIndexApp.factory('apiFactory', function($http) {
       return $http.get(urlBase + 'spieltag/' + spieltagNr + getRandomizer);
    };
 
-   apiFactory.tippsAbgeben = function(spieltagNr, jsonData) {
-      return $http.post(urlBase + 'spieltag/' + spieltagNr + '/alle', jsonData);
-   };
+   // apiFactory.tippsAbgeben = function(spieltagNr, jsonData) {
+   //    return $http.post(urlBase + 'spieltag/' + spieltagNr + '/alle', jsonData);
+   // };
 
    apiFactory.tippAbgeben = function(spieltagNr, jsonData) {
       return $http.post(urlBase + 'spieltag/' + spieltagNr, jsonData);
@@ -52,13 +52,13 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
    $scope.sessionAktiv = sessionAktiv;
    $scope.stundenVorher = stundenVorher;
    $scope.tabelleninhalt = [];
-   $scope.spieltagDirty = false;
+   // $scope.spieltagDirty = false;
 
    // Controller-Methoden
    $scope.getAktuellenSpieltag = function() {
       $('#spinner').show();
       apiFactory.getSpieltag($scope.aktuellerSpieltag).then(response => {
-         $scope.spieltagDirty = false;
+         // $scope.spieltagDirty = false;
          $scope.wertung = response.data.wertung;
          $scope.matchesFinished = [];
          $scope.matchesUnFinished = [];
@@ -134,23 +134,23 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
          return match['Team'+teamNr].TeamName;
    };
 
-   $scope.saveTipps = function() {
-      var jsonData = $('#tippform').serializeArray();
-      // Request-Array in Objekt mit Key=MatchId_X umwandeln
-      var requestObject = {};
-      for(i=0; i<jsonData.length; i++) {
-         requestObject[jsonData[i].name] = jsonData[i].value;
-      }
-      apiFactory.tippsAbgeben($scope.aktuellerSpieltag, JSON.stringify(requestObject)).then(function(response) {
-         window.scrollTo(0,0);
-         if(response.data.err>0) {
-            showMessage("danger", response.data.message);
-         } else {
-            showMessage("success", response.data.message);
-         }
-         $scope.getAktuellenSpieltag();
-      });
-   };
+   // $scope.saveTipps = function() {
+   //    var jsonData = $('#tippform').serializeArray();
+   //    // Request-Array in Objekt mit Key=MatchId_X umwandeln
+   //    var requestObject = {};
+   //    for(i=0; i<jsonData.length; i++) {
+   //       requestObject[jsonData[i].name] = jsonData[i].value;
+   //    }
+   //    apiFactory.tippsAbgeben($scope.aktuellerSpieltag, JSON.stringify(requestObject)).then(function(response) {
+   //       window.scrollTo(0,0);
+   //       if(response.data.err>0) {
+   //          showMessage("danger", response.data.message);
+   //       } else {
+   //          showMessage("success", response.data.message);
+   //       }
+   //       $scope.getAktuellenSpieltag();
+   //    });
+   // };
 
    $scope.saveTipp = function(matchNr) {
       var requestObject = {};
@@ -182,7 +182,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
 
          if ((teamA != "" && teamB != "") || (teamA == "" && teamB == ""))
             $scope.$apply(function() {
-               $scope.spieltagDirty = true;
+               // $scope.spieltagDirty = true;
                $scope.saveTipp(matchNr);
             });
       }

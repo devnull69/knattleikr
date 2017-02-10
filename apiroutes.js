@@ -133,75 +133,75 @@ module.exports = function(app, Settings) {
       }
    });
 
-   // Alle Tipps abgeben, für Rechner mit selektiv gesperrtem Javascript
-   app.post('/api/spieltag/:spieltag/alle', (req, res) => {
-      var tipps = req.body;
-      var fehler = false;
+   // // Alle Tipps abgeben, für Rechner mit selektiv gesperrtem Javascript
+   // app.post('/api/spieltag/:spieltag/alle', (req, res) => {
+   //    var tipps = req.body;
+   //    var fehler = false;
 
-      if(req.session.user) {
-         var theUser = req.session.user;
-         OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {
-            // alle Matches
-            async.forEach(data, (match, callback) => {
-               var theMatchNr = match.MatchID;
-               // Ist Tipp vollständig, rechtzeitig und numerisch?
-               if(tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"]) {
-                  // Beide Tipps sind da
-                  if(tipps[theMatchNr + "_1"].match(/^\d+$/) && tipps[theMatchNr + "_2"].match(/^\d+$/)) {
-                     // Beide Tipps sind numerisch
-                     var matchDate = moment(match.MatchDateTimeUTC);
-                     if(moment.duration(matchDate.diff(moment())).asHours() > Settings.stundenVorher) {
-                        // Tipp ist rechtzeitig
-                        // Hier ist also alles ok. Jetzt prüfen, ob Update oder Insert (Parameter upsert:true bei UserTipp.update)
-                        var userObjectId = new mongoose.Types.ObjectId(theUser._id);
-                        var pointsTeam1 = parseInt(tipps[theMatchNr + "_1"], 10);
-                        var pointsTeam2 = parseInt(tipps[theMatchNr + "_2"], 10);
-                        UserTipp.update({fiUser: userObjectId, matchNr: theMatchNr},
-                           {fiUser: userObjectId, matchNr: theMatchNr, pointsTeam1: pointsTeam1, pointsTeam2: pointsTeam2},
-                           {upsert: true}, err => {
-                              if(err)
-                                 fehler = true;     // technischer Fehler
+   //    if(req.session.user) {
+   //       var theUser = req.session.user;
+   //       OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {
+   //          // alle Matches
+   //          async.forEach(data, (match, callback) => {
+   //             var theMatchNr = match.MatchID;
+   //             // Ist Tipp vollständig, rechtzeitig und numerisch?
+   //             if(tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"]) {
+   //                // Beide Tipps sind da
+   //                if(tipps[theMatchNr + "_1"].match(/^\d+$/) && tipps[theMatchNr + "_2"].match(/^\d+$/)) {
+   //                   // Beide Tipps sind numerisch
+   //                   var matchDate = moment(match.MatchDateTimeUTC);
+   //                   if(moment.duration(matchDate.diff(moment())).asHours() > Settings.stundenVorher) {
+   //                      // Tipp ist rechtzeitig
+   //                      // Hier ist also alles ok. Jetzt prüfen, ob Update oder Insert (Parameter upsert:true bei UserTipp.update)
+   //                      var userObjectId = new mongoose.Types.ObjectId(theUser._id);
+   //                      var pointsTeam1 = parseInt(tipps[theMatchNr + "_1"], 10);
+   //                      var pointsTeam2 = parseInt(tipps[theMatchNr + "_2"], 10);
+   //                      UserTipp.update({fiUser: userObjectId, matchNr: theMatchNr},
+   //                         {fiUser: userObjectId, matchNr: theMatchNr, pointsTeam1: pointsTeam1, pointsTeam2: pointsTeam2},
+   //                         {upsert: true}, err => {
+   //                            if(err)
+   //                               fehler = true;     // technischer Fehler
 
-                              // Loggen, dass Tipp abgegeben wurde
-                              console.log("[" + req.session.user.nickname + "] tippte: " + match.Team1.TeamName + " - " + match.Team2.TeamName + " " + pointsTeam1 + ":" + pointsTeam2); 
+   //                            // Loggen, dass Tipp abgegeben wurde
+   //                            console.log("[" + req.session.user.nickname + "] tippte: " + match.Team1.TeamName + " - " + match.Team2.TeamName + " " + pointsTeam1 + ":" + pointsTeam2); 
 
-                              callback();
-                           });
-                     } else {
-                        // weniger als x Stunden vorher
-                        fehler = true;
-                        callback();
-                     }
-                  } else {
-                     // Ein Tipp war nicht numerisch
-                     fehler = true;
-                     callback();
-                  }
-               } else if ((tipps[theMatchNr + "_1"] && !tipps[theMatchNr + "_2"]) || (!tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"])) {
-                  // der Tipp wurde nur halb abgegeben
-                  fehler = true;
-                  callback();
-               } else {
-                  // Tipp gar nicht da, wurde evtl. entfernt und muss dann aus den Usertipps gelöscht werden
-                  var userObjectId = new mongoose.Types.ObjectId(theUser._id);
-                  UserTipp.remove({fiUser: userObjectId, matchNr: theMatchNr}, err => {
-                     if(err)
-                        fehler = true;
-                     callback();
-                  });
-               }
-            }, err => {
-               // Async loop finished
-               if(fehler)
-                  res.json({err: 1, message: 'Mindestens ein Tipp wurde nicht rechtzeitig oder inhaltlich falsch abgegeben. Bitte prüfe Deine Tipps noch einmal.'});
-               else
-                  res.json({err: 0, message: 'Die Tipps wurden erfolgreich abgegeben.'});
-            });
-         });
-      } else {
-         res.redirect('/?err=1');
-      }
-   });
+   //                            callback();
+   //                         });
+   //                   } else {
+   //                      // weniger als x Stunden vorher
+   //                      fehler = true;
+   //                      callback();
+   //                   }
+   //                } else {
+   //                   // Ein Tipp war nicht numerisch
+   //                   fehler = true;
+   //                   callback();
+   //                }
+   //             } else if ((tipps[theMatchNr + "_1"] && !tipps[theMatchNr + "_2"]) || (!tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"])) {
+   //                // der Tipp wurde nur halb abgegeben
+   //                fehler = true;
+   //                callback();
+   //             } else {
+   //                // Tipp gar nicht da, wurde evtl. entfernt und muss dann aus den Usertipps gelöscht werden
+   //                var userObjectId = new mongoose.Types.ObjectId(theUser._id);
+   //                UserTipp.remove({fiUser: userObjectId, matchNr: theMatchNr}, err => {
+   //                   if(err)
+   //                      fehler = true;
+   //                   callback();
+   //                });
+   //             }
+   //          }, err => {
+   //             // Async loop finished
+   //             if(fehler)
+   //                res.json({err: 1, message: 'Mindestens ein Tipp wurde nicht rechtzeitig oder inhaltlich falsch abgegeben. Bitte prüfe Deine Tipps noch einmal.'});
+   //             else
+   //                res.json({err: 0, message: 'Die Tipps wurden erfolgreich abgegeben.'});
+   //          });
+   //       });
+   //    } else {
+   //       res.redirect('/?err=1');
+   //    }
+   // });
 
    app.get('/api/user/:userid/spieltag/:spieltag', (req, res) => {
       // Spieltag-Daten von OpenLigaDB
