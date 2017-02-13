@@ -6,6 +6,7 @@ var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 var User = require('./model/user.js');
 var UserDetail = require('./model/userdetail.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
+var Lieferanten = require('./model/lieferanten.js');
 
 var Helper = require('./util/helper.js');
 
@@ -291,6 +292,17 @@ module.exports = function(app, Settings) {
             });
          } else
             res.render('tabelle', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: null});
+      });
+   });
+
+   app.get('/lieferanten', (req, res) => {
+      Lieferanten.findOne({fiUser: null}, (err, tabelle) => {
+         if(req.session.user) {
+            UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+               res.render('lieferanten', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: Helper.md5(req.session.user.email)});
+            });
+         } else
+            res.render('lieferanten', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: null});
       });
    });
 

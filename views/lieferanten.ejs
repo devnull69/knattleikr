@@ -3,7 +3,7 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width">
-   <title>KNATTLEIKR - Gesamttabelle</title>
+   <title>KNATTLEIKR - Punktlieferanten</title>
 
    <% include cssAndScripts %>
 
@@ -24,15 +24,15 @@
    <div style="min-height: 500px;">
       <div class="hidden-xs col-md-3 col-lg-4"></div>
       <div class="col-xs-12 col-md-6 col-lg-4">
-         <h4>Gesamttabelle</h4>
+         <h4>Zuverlässige Punktlieferanten</h4>
          <table class="table">
             <thead>
                <tr>
                   <th>Pos.</th>
-                  <th>User</th>
+                  <th>Mannschaft</th>
                   <th>Pkt.</th>
                   <th>Spiele</th>
-                  <th>Wertung</th>
+                  <th>Pkt./Sp.</th>
                </tr>
             </thead>
             <tbody>
@@ -40,7 +40,7 @@
                <% for(i=0; i<tabelle.tabelleninhalt.length; i++) {%>
                   <tr>
                      <td><%= letzteWertung==tabelle.tabelleninhalt[i].wertung?"":i+1 %></td>
-                     <td><a class="userlink" href="/user/<%= tabelle.tabelleninhalt[i].nickname %>"><%= tabelle.tabelleninhalt[i].nickname %></a></td>
+                     <td><%= tabelle.tabelleninhalt[i].teamname %></td>
                      <td><%= tabelle.tabelleninhalt[i].punkte %></td>
                      <td><%= tabelle.tabelleninhalt[i].spiele %></td>
                      <td><%= tabelle.tabelleninhalt[i].wertung>-1?tabelle.tabelleninhalt[i].wertung.toFixed(3):"-" %></td>
@@ -49,8 +49,6 @@
                   }%>
             </tbody>
          </table>
-         <hr/>
-         <p class="white">Hier geht's zur >> <a href="/lieferanten">Tabelle der zuverlässigen Punktlieferanten</a></p>
       </div>
       <div class="hidden-xs col-md-3 col-lg-4"></div>
    </div>
