@@ -63,6 +63,7 @@
                <tr>
                   <th colspan="2">Mannschaften</th>
                   <th>Datum</th>
+                  <th>Tipp</th>
                </tr>
             </thead>
             <tbody>
@@ -70,6 +71,7 @@
                   <td><img ng-src="{{ match.Team1.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 1) }}</td>
                   <td><img ng-src="{{ match.Team2.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 2) }}</td>
                   <td>{{ showDatumUhrzeit(match) }}</td>
+                  <td>{{match.usertipp?match.usertipp.pointsTeam1+":"+match.usertipp.pointsTeam2:"-"}}</td>
                </tr>
             </tbody>
          </table>

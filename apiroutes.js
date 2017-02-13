@@ -229,6 +229,12 @@ module.exports = function(app, Settings) {
                      match.punkte = Helper.calcPunkte(match.MatchResults[1].PointsTeam1, match.MatchResults[1].PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
                      tippAnzahl++;
                      gesamtPunkte += match.punkte;
+                  } else {
+                     // Match ist noch nicht fertig, trotzdem Tipp anzeigen, falls Tipp nicht mehr veränderbar
+                     var matchDate = moment(match.MatchDateTimeUTC);
+                     if(moment.duration(matchDate.diff(moment())).asHours() < Settings.stundenVorher) {
+                        match.usertipp = usertipp;
+                     }
                   }
                }
                callback();
