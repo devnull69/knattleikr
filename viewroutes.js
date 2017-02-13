@@ -286,7 +286,6 @@ module.exports = function(app, Settings) {
    app.get('/tabelle', (req, res) => {
       Einzeltabelle.findOne({}, (err, tabelle) => {
          if(req.session.user) {
-            console.log(tabelle);
             UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
                res.render('tabelle', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: Helper.md5(req.session.user.email)});
             });
@@ -305,13 +304,17 @@ module.exports = function(app, Settings) {
          res.render('anleitung', {user: null, userdetail: null, gravatarhash: null, stundenVorherString: stundenVorherString});
    });
 
-   app.get('/user/:nickname', (req, res) => {
+   app.get('/user/:nickname', (req, res) => {  // Kann auch mit ?spieltag=XX aufgerufen werden!
       // Benutzer suchen
       User.findOne({nickname: req.params.nickname}, (err, otherUser) => {
          if(otherUser) {
             var andererUser = {};
             andererUser.nickname = otherUser.nickname;
             andererUser.userid = otherUser._id.toString();
+
+            var spieltagNr = Settings.aktuellerSpieltag;
+            if(req.query.spieltag)
+               spieltagNr = parseInt(req.query.spieltag, 10);
 
             // Wertung aus den Userdetails
             UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(otherUser._id)}, (err, otherUserdetail) => {
@@ -321,10 +324,10 @@ module.exports = function(app, Settings) {
                      res.redirect('/');
                   else
                      UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-                        res.render('user', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser, gravatarhash: Helper.md5(req.session.user.email)});
+                        res.render('user', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, otherUser: andererUser, gravatarhash: Helper.md5(req.session.user.email)});
                      });
                } else
-                  res.render('user', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, otherUser: andererUser, gravatarhash: null});
+                  res.render('user', {user: null, userdetail: null, spieltagNr: spieltagNr, otherUser: andererUser, gravatarhash: null});
             });
          } else {
             res.redirect('/');

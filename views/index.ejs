@@ -108,7 +108,7 @@
                <tbody>
                      <tr ng-repeat="eintrag in tabelleninhalt">
                         <td>{{$index==0?1:(eintrag.wertung!=tabelleninhalt[$index - 1].wertung?$index+1:"")}}</td>
-                        <td><a class="userlink" ng-href="/user/{{eintrag.nickname}}">{{eintrag.nickname}}</a></td>
+                        <td><a class="userlink" ng-href="/user/{{eintrag.nickname}}?spieltag={{aktuellerSpieltag}}">{{eintrag.nickname}}</a></td>
                         <td>{{eintrag.punkte}}</td>
                         <td>{{eintrag.spiele}}</td>
                         <td>{{eintrag.wertung.toFixed(3)}}</td>
