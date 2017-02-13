@@ -4,6 +4,8 @@ var lieferantenSchema = new mongoose.Schema({
    fiUser: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
    tabelleninhalt:   [{
          teamname: String,
+         teamShort: String,
+         teamUrl: String,
          punkte: Number,
          spiele: Number,
          wertung: Number

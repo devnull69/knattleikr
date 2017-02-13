@@ -13,6 +13,28 @@ var Lieferanten = require('./model/lieferanten.js');
 
 var gesamtzahlSpiele = 0;
 
+// Team-Mappings
+var teamShort = {
+   "t6"  : "B04",
+   "t7"  : "BVB",
+   "t9"  : "S04",
+   "t40" : "FCB",
+   "t54" : "BSC",
+   "t65" : "KOE",
+   "t81" : "M05",
+   "t87" : "BMG",
+   "t91" : "SGE",
+   "t95" : "FCA",
+   "t100": "HSV",
+   "t112": "SCF",
+   "t118": "D98",
+   "t123": "TSG",
+   "t131": "WOB",
+   "t134": "SVW",
+   "t171": "FCI",
+   "t1635": "RBL"
+};
+
 module.exports = function(app, Settings) {
    
    app.get('/api/spieltag/:spieltag', (req, res) => {
@@ -470,8 +492,8 @@ module.exports = function(app, Settings) {
                var allTeams = {};
                OpenLigaDB.getSpieltag(1, (err, matches) => {
                   async.forEach(matches, (match, callback) => {
-                     allTeams[match.Team1.TeamId] = {teamname: match.Team1.TeamName, punkte: 0, spiele: 0, wertung: -1};
-                     allTeams[match.Team2.TeamId] = {teamname: match.Team2.TeamName, punkte: 0, spiele: 0, wertung: -1};
+                     allTeams[match.Team1.TeamId] = {teamname: match.Team1.TeamName, teamShort: teamShort["t"+match.Team1.TeamId], teamUrl: match.Team1.TeamIconUrl, punkte: 0, spiele: 0, wertung: -1};
+                     allTeams[match.Team2.TeamId] = {teamname: match.Team2.TeamName, teamShort: teamShort["t"+match.Team2.TeamId], teamUrl: match.Team2.TeamIconUrl, punkte: 0, spiele: 0, wertung: -1};
                      callback();
                   }, err => {
                      var allUsers = {};

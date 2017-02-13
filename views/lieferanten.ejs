@@ -8,6 +8,25 @@
    <% include cssAndScripts %>
 
    <script type="text/javascript" src="/js/app_tabelle.js"></script>
+   <script>
+      function isBreakpoint( alias ) {
+          return $('.device-' + alias).is(':visible');
+      }
+
+      function tableHideColumn(tableId, col) {
+         $('#'+tableId+' tr > th:nth-child(' + (col+1) + ')').hide();
+         $('#'+tableId+' tr > td:nth-child(' + (col+1) + ')').hide();
+      }
+
+      $(function() {
+         // Eine Spalte verstecken, je nach Bildschirmauflösung
+         if(isBreakpoint('xs')) {
+            tableHideColumn('mytable', 1);
+         } else {
+            tableHideColumn('mytable', 2);
+         }
+      });
+   </script>
 </head>
 <body ng-controller="knattleikrTabelleController">
 
@@ -25,10 +44,11 @@
       <div class="hidden-xs col-md-3 col-lg-4"></div>
       <div class="col-xs-12 col-md-6 col-lg-4">
          <h4>Zuverlässige Punktlieferanten</h4>
-         <table class="table table-striped">
+         <table class="table table-striped" id="mytable">
             <thead>
                <tr>
                   <th>Pos.</th>
+                  <th>Mannschaft</th>
                   <th>Mannschaft</th>
                   <th>Pkt.</th>
                   <th>Spiele</th>
@@ -40,7 +60,8 @@
                <% for(i=0; i<tabelle.tabelleninhalt.length; i++) {%>
                   <tr>
                      <td><%= letzteWertung==tabelle.tabelleninhalt[i].wertung?"":i+1 %></td>
-                     <td><%= tabelle.tabelleninhalt[i].teamname %></td>
+                     <td><img src="<%= tabelle.tabelleninhalt[i].teamUrl%>" width="20"/> <%= tabelle.tabelleninhalt[i].teamname %></td>
+                     <td><img src="<%= tabelle.tabelleninhalt[i].teamUrl%>" width="20"/> <%= tabelle.tabelleninhalt[i].teamShort %></td>
                      <td><%= tabelle.tabelleninhalt[i].punkte %></td>
                      <td><%= tabelle.tabelleninhalt[i].spiele %></td>
                      <td><%= tabelle.tabelleninhalt[i].wertung>-1?tabelle.tabelleninhalt[i].wertung.toFixed(3):"-" %></td>
