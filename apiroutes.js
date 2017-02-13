@@ -9,6 +9,7 @@ var UserTipp = require('./model/usertipp.js');
 var Config = require('./model/config.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
 var Spieltagtabelle = require('./model/spieltagtabelle.js');
+var Lieferanten = require('./model/lieferanten.js');
 
 var gesamtzahlSpiele = 0;
 
@@ -133,75 +134,75 @@ module.exports = function(app, Settings) {
       }
    });
 
-   // // Alle Tipps abgeben, für Rechner mit selektiv gesperrtem Javascript
-   // app.post('/api/spieltag/:spieltag/alle', (req, res) => {
-   //    var tipps = req.body;
-   //    var fehler = false;
+   // Alle Tipps abgeben, für Rechner mit selektiv gesperrtem Javascript
+   app.post('/api/spieltag/:spieltag/alle', (req, res) => {
+      var tipps = req.body;
+      var fehler = false;
 
-   //    if(req.session.user) {
-   //       var theUser = req.session.user;
-   //       OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {
-   //          // alle Matches
-   //          async.forEach(data, (match, callback) => {
-   //             var theMatchNr = match.MatchID;
-   //             // Ist Tipp vollständig, rechtzeitig und numerisch?
-   //             if(tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"]) {
-   //                // Beide Tipps sind da
-   //                if(tipps[theMatchNr + "_1"].match(/^\d+$/) && tipps[theMatchNr + "_2"].match(/^\d+$/)) {
-   //                   // Beide Tipps sind numerisch
-   //                   var matchDate = moment(match.MatchDateTimeUTC);
-   //                   if(moment.duration(matchDate.diff(moment())).asHours() > Settings.stundenVorher) {
-   //                      // Tipp ist rechtzeitig
-   //                      // Hier ist also alles ok. Jetzt prüfen, ob Update oder Insert (Parameter upsert:true bei UserTipp.update)
-   //                      var userObjectId = new mongoose.Types.ObjectId(theUser._id);
-   //                      var pointsTeam1 = parseInt(tipps[theMatchNr + "_1"], 10);
-   //                      var pointsTeam2 = parseInt(tipps[theMatchNr + "_2"], 10);
-   //                      UserTipp.update({fiUser: userObjectId, matchNr: theMatchNr},
-   //                         {fiUser: userObjectId, matchNr: theMatchNr, pointsTeam1: pointsTeam1, pointsTeam2: pointsTeam2},
-   //                         {upsert: true}, err => {
-   //                            if(err)
-   //                               fehler = true;     // technischer Fehler
+      if(req.session.user) {
+         var theUser = req.session.user;
+         OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {
+            // alle Matches
+            async.forEach(data, (match, callback) => {
+               var theMatchNr = match.MatchID;
+               // Ist Tipp vollständig, rechtzeitig und numerisch?
+               if(tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"]) {
+                  // Beide Tipps sind da
+                  if(tipps[theMatchNr + "_1"].match(/^\d+$/) && tipps[theMatchNr + "_2"].match(/^\d+$/)) {
+                     // Beide Tipps sind numerisch
+                     var matchDate = moment(match.MatchDateTimeUTC);
+                     if(moment.duration(matchDate.diff(moment())).asHours() > Settings.stundenVorher) {
+                        // Tipp ist rechtzeitig
+                        // Hier ist also alles ok. Jetzt prüfen, ob Update oder Insert (Parameter upsert:true bei UserTipp.update)
+                        var userObjectId = new mongoose.Types.ObjectId(theUser._id);
+                        var pointsTeam1 = parseInt(tipps[theMatchNr + "_1"], 10);
+                        var pointsTeam2 = parseInt(tipps[theMatchNr + "_2"], 10);
+                        UserTipp.update({fiUser: userObjectId, matchNr: theMatchNr},
+                           {fiUser: userObjectId, matchNr: theMatchNr, pointsTeam1: pointsTeam1, pointsTeam2: pointsTeam2},
+                           {upsert: true}, err => {
+                              if(err)
+                                 fehler = true;     // technischer Fehler
 
-   //                            // Loggen, dass Tipp abgegeben wurde
-   //                            console.log("[" + req.session.user.nickname + "] tippte: " + match.Team1.TeamName + " - " + match.Team2.TeamName + " " + pointsTeam1 + ":" + pointsTeam2); 
+                              // Loggen, dass Tipp abgegeben wurde
+                              console.log("[" + req.session.user.nickname + "] tippte: " + match.Team1.TeamName + " - " + match.Team2.TeamName + " " + pointsTeam1 + ":" + pointsTeam2); 
 
-   //                            callback();
-   //                         });
-   //                   } else {
-   //                      // weniger als x Stunden vorher
-   //                      fehler = true;
-   //                      callback();
-   //                   }
-   //                } else {
-   //                   // Ein Tipp war nicht numerisch
-   //                   fehler = true;
-   //                   callback();
-   //                }
-   //             } else if ((tipps[theMatchNr + "_1"] && !tipps[theMatchNr + "_2"]) || (!tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"])) {
-   //                // der Tipp wurde nur halb abgegeben
-   //                fehler = true;
-   //                callback();
-   //             } else {
-   //                // Tipp gar nicht da, wurde evtl. entfernt und muss dann aus den Usertipps gelöscht werden
-   //                var userObjectId = new mongoose.Types.ObjectId(theUser._id);
-   //                UserTipp.remove({fiUser: userObjectId, matchNr: theMatchNr}, err => {
-   //                   if(err)
-   //                      fehler = true;
-   //                   callback();
-   //                });
-   //             }
-   //          }, err => {
-   //             // Async loop finished
-   //             if(fehler)
-   //                res.json({err: 1, message: 'Mindestens ein Tipp wurde nicht rechtzeitig oder inhaltlich falsch abgegeben. Bitte prüfe Deine Tipps noch einmal.'});
-   //             else
-   //                res.json({err: 0, message: 'Die Tipps wurden erfolgreich abgegeben.'});
-   //          });
-   //       });
-   //    } else {
-   //       res.redirect('/?err=1');
-   //    }
-   // });
+                              callback();
+                           });
+                     } else {
+                        // weniger als x Stunden vorher
+                        fehler = true;
+                        callback();
+                     }
+                  } else {
+                     // Ein Tipp war nicht numerisch
+                     fehler = true;
+                     callback();
+                  }
+               } else if ((tipps[theMatchNr + "_1"] && !tipps[theMatchNr + "_2"]) || (!tipps[theMatchNr + "_1"] && tipps[theMatchNr + "_2"])) {
+                  // der Tipp wurde nur halb abgegeben
+                  fehler = true;
+                  callback();
+               } else {
+                  // Tipp gar nicht da, wurde evtl. entfernt und muss dann aus den Usertipps gelöscht werden
+                  var userObjectId = new mongoose.Types.ObjectId(theUser._id);
+                  UserTipp.remove({fiUser: userObjectId, matchNr: theMatchNr}, err => {
+                     if(err)
+                        fehler = true;
+                     callback();
+                  });
+               }
+            }, err => {
+               // Async loop finished
+               if(fehler)
+                  res.json({err: 1, message: 'Mindestens ein Tipp wurde nicht rechtzeitig oder inhaltlich falsch abgegeben. Bitte prüfe Deine Tipps noch einmal.'});
+               else
+                  res.json({err: 0, message: 'Die Tipps wurden erfolgreich abgegeben.'});
+            });
+         });
+      } else {
+         res.redirect('/?err=1');
+      }
+   });
 
    app.get('/api/user/:userid/spieltag/:spieltag', (req, res) => {
       // Spieltag-Daten von OpenLigaDB
@@ -366,14 +367,8 @@ module.exports = function(app, Settings) {
                return user2.wertung - user1.wertung;
             });
 
-            mongoose.connection.db.dropCollection('einzeltabelle', (err, result) => {
-               async.forEach(userArray, (user, callback) => {
-                  Einzeltabelle.update({nickname: user.nickname}, {nickname: user.nickname, punkte: user.punkte, spiele: user.spiele, wertung: user.wertung}, {upsert: true}, (err, results) => {
-                     callback();
-                  })
-               }, err => {
-                  res.json({err: 0, message: 'Einzelwertung erfolgreich berechnet.'});
-               });
+            Einzeltabelle.update({}, {$set: {tabelleninhalt: userArray}}, {upsert: true}, (err, results) => {
+               res.json({err: 0, message: 'Einzelwertung erfolgreich berechnet.'});
             });
 
          });
@@ -451,10 +446,112 @@ module.exports = function(app, Settings) {
 
                Spieltagtabelle.update({spieltagNr: spieltag}, {$set: {tabelleninhalt: userArray}}, {upsert: true}, (err, results) => {
                   res.json({err: 0, message: 'Spieltagwertung erfolgreich berechnet.'});
-               })
+               });
             });
          });         
       }
    }
 
+   app.get('/api/admin/lieferantenwertung', (req, res) => {
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            if(userdetail.isAdmin) {
+               // Schritt 0: Alle Teams holen
+               // Schritt 1: Alle User holen und alle Teams zuordnen
+               // Schritt 2: Alle Spieltage durchgehen, dann Tipps sichten
+               // Schritt 3: Tabellen berechnen aus Teams
+
+               var allTeams = {};
+               OpenLigaDB.getSpieltag(1, (err, matches) => {
+                  async.forEach(matches, (match, callback) => {
+                     allTeams[match.Team1.TeamId] = {teamname: match.Team1.TeamName, punkte: 0, spiele: 0, wertung: -1};
+                     allTeams[match.Team2.TeamId] = {teamname: match.Team2.TeamName, punkte: 0, spiele: 0, wertung: -1};
+                     callback();
+                  }, err => {
+                     var allUsers = {};
+                     User.find({}, {}, (err, users) => {
+                        async.forEach(users, (user, callback) => {
+                           allUsers[user._id] = deepClone(allTeams);
+                           callback();
+                        }, err => {
+                           lieferantenwertungRekursiv(1, res, allUsers, allTeams);
+                        });
+                     });
+                  });
+               });
+
+            } else {
+               res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+            }
+         });
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+      }
+   });
+
+   function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+   }
+
+   function lieferantenwertungRekursiv(spieltag, res, users, teams) {
+      if(spieltag <= Settings.aktuellerSpieltag) {
+         OpenLigaDB.getSpieltag(spieltag, (err, matches) => {
+            // einen Spieltag durchgehen
+            async.forEach(matches, (match, callback) => {
+               if(match.MatchIsFinished) {
+                  var theMatchNr = match.MatchID;
+
+                  // Alle Tipps dazu suchen
+                  UserTipp.find({matchNr: theMatchNr}, (err, usertipps) => {
+                     async.forEach(usertipps, (usertipp, innercallback) => {
+                        // Punkte berechnen und dem Team sowie dem Benutzer-Team hinzufügen
+                        var punkte = Helper.calcPunkte(match.MatchResults[1].PointsTeam1, match.MatchResults[1].PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
+
+                        teams[match.Team1.TeamId].punkte += punkte;
+                        teams[match.Team2.TeamId].punkte += punkte;
+                        users[usertipp.fiUser][match.Team1.TeamId].punkte += punkte;
+                        users[usertipp.fiUser][match.Team2.TeamId].punkte += punkte;
+
+                        teams[match.Team1.TeamId].spiele++;
+                        teams[match.Team2.TeamId].spiele++;
+                        users[usertipp.fiUser][match.Team1.TeamId].spiele++;
+                        users[usertipp.fiUser][match.Team2.TeamId].spiele++;
+
+                        teams[match.Team1.TeamId].wertung = teams[match.Team1.TeamId].punkte / teams[match.Team1.TeamId].spiele;
+                        teams[match.Team2.TeamId].wertung = teams[match.Team2.TeamId].punkte / teams[match.Team2.TeamId].spiele;
+                        users[usertipp.fiUser][match.Team1.TeamId].wertung = users[usertipp.fiUser][match.Team1.TeamId].punkte / users[usertipp.fiUser][match.Team1.TeamId].spiele;
+                        users[usertipp.fiUser][match.Team2.TeamId].wertung = users[usertipp.fiUser][match.Team2.TeamId].punkte / users[usertipp.fiUser][match.Team2.TeamId].spiele;
+
+                        innercallback();
+                     }, err => {
+                        // inner async forEach finished, go next on outer async forEach
+                        callback();
+                     });
+                  });
+               } else {
+                  callback();
+               }
+            }, err => {
+               // Async loop finished
+               lieferantenwertungRekursiv(spieltag + 1, res, users, teams);
+            });
+         });         
+      } else {
+         // Gesamt-Tabelle berechnen
+
+         // Teams-Objekt in Array umwandeln
+         var teamArray = [];
+         for(teamid in teams) {
+            teamArray.push(teams[teamid]);
+         }
+
+         teamArray.sort((team1, team2) => {
+            return (team2.wertung - team1.wertung) || (team2.punkte - team1.punkte);
+         });
+
+         Lieferanten.update({fiUser: null}, {$set: {tabelleninhalt: teamArray}}, {upsert: true}, (err, results) => {
+            res.json({err: 0, message: 'Lieferantenwertung erfolgreich berechnet.'});
+         });
+      }
+   }
 };

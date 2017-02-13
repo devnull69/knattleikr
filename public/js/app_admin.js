@@ -17,6 +17,10 @@ knattleikrAdminApp.factory('apiFactory', function($http) {
       return $http.get(urlBase + 'spieltag/' + spieltagNr + '/wertung');
    };
 
+   apiFactory.lieferantenwertung = function() {
+      return $http.get(urlBase + 'lieferantenwertung');
+   };
+
    return apiFactory;
 });
 
@@ -64,6 +68,24 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, apiF
       $('#spinner_spieltagwertung').show();
       apiFactory.spieltagwertung($scope.wertungsSpieltag).then(function(response) {
          $('#spinner_spieltagwertung').hide();
+         switch(response.data.err) {
+            case 0:
+               showMessage('success', response.data.message);
+               break;
+            case 1:
+               showMessage('danger', response.data.message);
+               break;
+            case 2:
+               window.location.href = "/?err=1";
+               break;
+         }
+      });
+   };
+
+   $scope.lieferantenwertung = function() {
+      $('#spinner_lieferantenwertung').show();
+      apiFactory.lieferantenwertung().then(function(response) {
+         $('#spinner_lieferantenwertung').hide();
          switch(response.data.err) {
             case 0:
                showMessage('success', response.data.message);

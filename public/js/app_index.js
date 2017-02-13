@@ -134,23 +134,23 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
          return match['Team'+teamNr].TeamName;
    };
 
-   // $scope.saveTipps = function() {
-   //    var jsonData = $('#tippform').serializeArray();
-   //    // Request-Array in Objekt mit Key=MatchId_X umwandeln
-   //    var requestObject = {};
-   //    for(i=0; i<jsonData.length; i++) {
-   //       requestObject[jsonData[i].name] = jsonData[i].value;
-   //    }
-   //    apiFactory.tippsAbgeben($scope.aktuellerSpieltag, JSON.stringify(requestObject)).then(function(response) {
-   //       window.scrollTo(0,0);
-   //       if(response.data.err>0) {
-   //          showMessage("danger", response.data.message);
-   //       } else {
-   //          showMessage("success", response.data.message);
-   //       }
-   //       $scope.getAktuellenSpieltag();
-   //    });
-   // };
+   $scope.saveTipps = function() {
+      var jsonData = $('#tippform').serializeArray();
+      // Request-Array in Objekt mit Key=MatchId_X umwandeln
+      var requestObject = {};
+      for(i=0; i<jsonData.length; i++) {
+         requestObject[jsonData[i].name] = jsonData[i].value;
+      }
+      apiFactory.tippsAbgeben($scope.aktuellerSpieltag, JSON.stringify(requestObject)).then(function(response) {
+         window.scrollTo(0,0);
+         if(response.data.err>0) {
+            showMessage("danger", response.data.message);
+         } else {
+            showMessage("success", response.data.message);
+         }
+         $scope.getAktuellenSpieltag();
+      });
+   };
 
    $scope.saveTipp = function(matchNr) {
       var requestObject = {};
@@ -168,10 +168,8 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
    // sofort ausführen
    $scope.getAktuellenSpieltag();
 
-   // Change-Handler binden
    $(document).on('keyup', 'input.tipp', function(e) {
-      console.log(e.keyCode);
-      if((e.keyCode >= 48 && e.keyCode <= 57) || e.keyCode == 32 || e.keyCode == 8 || e.keyCode == 46) {
+      if((e.keyCode >= 48 && e.keyCode <= 57) || e.keyCode == 32 || e.keyCode == 8 || e.keyCode == 46 || e.keyCode == 229) {
          // Ist der Tipp komplett (beide Felder gefüllt), dann Tipp abgeben
          var feldName = $(this).prop('name');
          var matchNr = feldName.match(/^(\d+)/)[1];

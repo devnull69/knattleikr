@@ -37,15 +37,15 @@
             </thead>
             <tbody>
                <% var letzteWertung = -2; %>
-               <% for(i=0; i<tabelle.length; i++) {%>
+               <% for(i=0; i<tabelle.tabelleninhalt.length; i++) {%>
                   <tr>
-                     <td><%= letzteWertung==tabelle[i].wertung?"":i+1 %></td>
-                     <td><a class="userlink" href="/user/<%= tabelle[i].nickname %>"><%= tabelle[i].nickname %></a></td>
-                     <td><%= tabelle[i].punkte %></td>
-                     <td><%= tabelle[i].spiele %></td>
-                     <td><%= tabelle[i].wertung>-1?tabelle[i].wertung.toFixed(3):"-" %></td>
+                     <td><%= letzteWertung==tabelle.tabelleninhalt[i].wertung?"":i+1 %></td>
+                     <td><a class="userlink" href="/user/<%= tabelle.tabelleninhalt[i].nickname %>"><%= tabelle.tabelleninhalt[i].nickname %></a></td>
+                     <td><%= tabelle.tabelleninhalt[i].punkte %></td>
+                     <td><%= tabelle.tabelleninhalt[i].spiele %></td>
+                     <td><%= tabelle.tabelleninhalt[i].wertung>-1?tabelle.tabelleninhalt[i].wertung.toFixed(3):"-" %></td>
                   </tr>
-               <%    letzteWertung = tabelle[i].wertung;
+               <%    letzteWertung = tabelle.tabelleninhalt[i].wertung;
                   }%>
             </tbody>
          </table>

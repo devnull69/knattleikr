@@ -284,8 +284,9 @@ module.exports = function(app, Settings) {
    });
 
    app.get('/tabelle', (req, res) => {
-      Einzeltabelle.find({}, (err, tabelle) => {
+      Einzeltabelle.findOne({}, (err, tabelle) => {
          if(req.session.user) {
+            console.log(tabelle);
             UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
                res.render('tabelle', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: Helper.md5(req.session.user.email)});
             });
