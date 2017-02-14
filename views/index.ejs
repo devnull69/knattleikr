@@ -52,8 +52,8 @@
             </thead>
             <tbody>
                <tr ng-repeat="match in matchesFinished">
-                  <td><img ng-src="{{ match.Team1.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 1) }}</td>
-                  <td><img ng-src="{{ match.Team2.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 2) }}</td>
+                  <td><img ng-src="{{ showIcon(match, 1) }}" width="20" /> {{ showTeamName(match, 1) }}</td>
+                  <td><img ng-src="{{ showIcon(match, 2) }}" width="20" /> {{ showTeamName(match, 2) }}</td>
                   <td>{{ match.MatchResults[1].PointsTeam1+":"+match.MatchResults[1].PointsTeam2 }}</td>
                   <% if (user) {%>
                      <td ng-bind-html="showTipp(match)"></td>
@@ -81,8 +81,8 @@
                </thead>
                <tbody>
                   <tr ng-repeat="match in matchesUnFinished">
-                     <td><img ng-src="{{ match.Team1.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 1) }}</td>
-                     <td><img ng-src="{{ match.Team2.TeamIconUrl }}" width="20" /> {{ showTeamName(match, 2) }}</td>
+                     <td><img ng-src="{{ showIcon(match, 1) }}" width="20" /> {{ showTeamName(match, 1) }}</td>
+                     <td><img ng-src="{{ showIcon(match, 2) }}" width="20" /> {{ showTeamName(match, 2) }}</td>
                      <td>{{ showDatumUhrzeit(match) }}</td>
                      <% if (user) {%>
                         <td ng-bind-html="showTipp(match)"></td>
