@@ -10,29 +10,62 @@ var Lieferanten = require('./model/lieferanten.js');
 
 var Helper = require('./util/helper.js');
 
+// Authentication Middleware
+function mustNotBeLoggedIn(req, res, next) {
+   if(!req.session.user)
+      next();
+   else
+      res.redirect('/');
+}
+
+function mustBeAdmin(req, res, next) {
+   if(req.session.user) {
+      UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+         if(userdetail.isAdmin) {
+            req.userdetail = userdetail;
+            next();
+         } else {
+            req.session.user = null;
+            req.session.destroy();
+            res.redirect('/?err=1');
+         }
+      });
+   } else {
+      req.session.user = null;
+      req.session.destroy();
+      res.redirect('/?err=1');
+   }
+}
+
+function canBeLoggedIn(req, res, next) {
+   if(req.session.user) {
+      UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+         req.userdetail = userdetail;
+         req.user = req.session.user;
+         next();
+      });
+   } else {
+      req.userdetail = null;
+      req.user = null;
+      next();
+   }
+}
+
+// Modul-Export
 module.exports = function(app, Settings) {
-   app.get('/', (req, res) => {
+   app.get('/', canBeLoggedIn, (req, res) => {
       var spieltagNr = Settings.aktuellerSpieltag;
       var maxVerpassteSpiele = Settings.maxVerpassteSpiele;
       var stundenVorherString = Settings.stundenVorher==1?"1 Stunde":Settings.stundenVorher+" Stunden";
-      if(req.session.user) {
-         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            res.render('index', {user: req.session.user, userdetail: userdetail, spieltagNr: spieltagNr, gravatarhash: Helper.md5(req.session.user.email), stundenVorherString: stundenVorherString, error: req.query.err, maxVerpassteSpiele: maxVerpassteSpiele});
-         });
-      }
-      else
-         res.render('index', {user: null, userdetail: null, spieltagNr: spieltagNr, error: req.query.err, gravatarhash: null, stundenVorherString: stundenVorherString, maxVerpassteSpiele: null});
+   
+      res.render('index', {user: req.user, userdetail: req.userdetail, spieltagNr: spieltagNr, gravatarhash: req.user?Helper.md5(req.session.user.email):null, stundenVorherString: stundenVorherString, error: req.query.err, maxVerpassteSpiele: maxVerpassteSpiele});
    });
 
-   app.get('/register', (req, res) => {
-      // Nur rendern, wenn keine User-Session existiert
-      if(!req.session.user)
-         res.render('register', {message: '', email: '', nickname: ''});
-      else
-         res.redirect('/');
+   app.get('/register', mustNotBeLoggedIn, (req, res) => {
+      res.render('register', {message: '', email: '', nickname: ''});
    });
 
-   app.post('/register', (req, res) => {
+   app.post('/register', mustNotBeLoggedIn, (req, res) => {
       var email = req.body.email;
       var nickname = req.body.nickname;
       var password1 = req.body.password1;
@@ -98,14 +131,11 @@ module.exports = function(app, Settings) {
 
    });
 
-   app.get('/login', (req, res) => {
-      if(!req.session.user)
-         res.render('login', { message : ''});
-      else
-         res.redirect('/');
+   app.get('/login', mustNotBeLoggedIn, (req, res) => {
+      res.render('login', { message : ''});
    });
 
-   app.post('/login', (req, res) => {
+   app.post('/login', mustNotBeLoggedIn, (req, res) => {
       var identifier = req.body.identifier;
       var password = req.body.password;
 
@@ -149,14 +179,11 @@ module.exports = function(app, Settings) {
       res.redirect('/');
    });
 
-   app.get('/forgottenpw', (req, res) => {
-      if(!req.session.user)
-         res.render('forgottenpw', {message: '', errmessage: ''});
-      else
-         res.redirect('/');
+   app.get('/forgottenpw', mustNotBeLoggedIn, (req, res) => {
+      res.render('forgottenpw', {message: '', errmessage: ''});
    });
 
-   app.post('/forgottenpw', (req, res) => {
+   app.post('/forgottenpw', mustNotBeLoggedIn, (req, res) => {
       var email = req.body.email;
 
       // Pflichtfelder?
@@ -212,9 +239,7 @@ module.exports = function(app, Settings) {
       return result;
    }
 
-   app.get('/changepw', (req, res) => {
-      if(req.session.user)
-         return res.redirect('/');
+   app.get('/changepw', mustNotBeLoggedIn, (req, res) => {
       if(req.query.key) {
          // forgottenPwKey suchen
          User.findOne({forgottenPwKey: req.query.key}, (err, user) => {
@@ -230,7 +255,7 @@ module.exports = function(app, Settings) {
          res.redirect('/?err=1');
    });
 
-   app.post('/changepw', (req, res) => {
+   app.post('/changepw', mustNotBeLoggedIn, (req, res) => {
       var forgottenPwKey = req.body.forgottenPwKey;
       var password1 = req.body.password1;
       var password2 = req.body.password2;
@@ -266,54 +291,25 @@ module.exports = function(app, Settings) {
       });
    });
 
-   app.get('/admin', (req, res) => {
-      if(req.session.user) {
-         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            if(userdetail.isAdmin)
-               res.render('admin', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, gravatarhash: Helper.md5(req.session.user.email)});
-            else {
-               req.session.user = null;
-               req.session.destroy();
-               res.redirect('/?err=1');
-            }
-         });
-      } else {
-         req.session.user = null;
-         req.session.destroy();
-         res.redirect('/?err=1');
-      }
+   app.get('/admin', mustBeAdmin, (req, res) => {
+      res.render('admin', {user: req.session.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, gravatarhash: Helper.md5(req.session.user.email)});
    });
 
-   app.get('/tabelle', (req, res) => {
+   app.get('/tabelle', canBeLoggedIn, (req, res) => {
       Einzeltabelle.findOne({}, (err, tabelle) => {
-         if(req.session.user) {
-            UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-               res.render('tabelle', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: Helper.md5(req.session.user.email)});
-            });
-         } else
-            res.render('tabelle', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: null});
+         res.render('tabelle', {user: req.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: req.user?Helper.md5(req.user.email):null});
       });
    });
 
-   app.get('/lieferanten', (req, res) => {
+   app.get('/lieferanten', canBeLoggedIn, (req, res) => {
       Lieferanten.findOne({fiUser: null}, (err, tabelle) => {
-         if(req.session.user) {
-            UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-               res.render('lieferanten', {user: req.session.user, userdetail: userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: Helper.md5(req.session.user.email)});
-            });
-         } else
-            res.render('lieferanten', {user: null, userdetail: null, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: null});
+         res.render('lieferanten', {user: req.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: req.user?Helper.md5(req.user.email):null});
       });
    });
 
-   app.get('/anleitung', (req, res) => {
+   app.get('/anleitung', canBeLoggedIn, (req, res) => {
       var stundenVorherString = Settings.stundenVorher==1?"1 Stunde":Settings.stundenVorher+" Stunden";
-      if(req.session.user) {
-         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
-            res.render('anleitung', {user: req.session.user, userdetail: userdetail, gravatarhash: Helper.md5(req.session.user.email), stundenVorherString: stundenVorherString});
-         });
-      } else
-         res.render('anleitung', {user: null, userdetail: null, gravatarhash: null, stundenVorherString: stundenVorherString});
+      res.render('anleitung', {user: req.user, userdetail: req.userdetail, gravatarhash: req.user?Helper.md5(req.session.user.email):null, stundenVorherString: stundenVorherString});
    });
 
    app.get('/user/:nickname', (req, res) => {  // Kann auch mit ?spieltag=XX aufgerufen werden!
