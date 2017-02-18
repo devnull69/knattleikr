@@ -99,7 +99,7 @@ knattleikrUserApp.controller('knattleikrUserController', function($scope, $sce, 
 
    $scope.showTeamName = function(match, teamNr) {
       if(isBreakpoint('xs'))
-         return teamShort["t"+match['Team'+teamNr].TeamId];
+         return teamShort["t"+match['Team'+teamNr].TeamId].shortname;
       else
          return match['Team'+teamNr].TeamName;
    };
