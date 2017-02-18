@@ -2,24 +2,24 @@ var knattleikrUserApp = angular.module('knattleikrUserApp', []);
 
 // Team-Mappings
 var teamShort = {
-   "t6"  : "B04",
-   "t7"  : "BVB",
-   "t9"  : "S04",
-   "t40" : "FCB",
-   "t54" : "BSC",
-   "t65" : "KOE",
-   "t81" : "M05",
-   "t87" : "BMG",
-   "t91" : "SGE",
-   "t95" : "FCA",
-   "t100": "HSV",
-   "t112": "SCF",
-   "t118": "D98",
-   "t123": "TSG",
-   "t131": "WOB",
-   "t134": "SVW",
-   "t171": "FCI",
-   "t1635": "RBL"
+   "t6"  : {shortname: "B04", iconId: 7},
+   "t7"  : {shortname: "BVB", iconId: 451245},
+   "t9"  : {shortname: "S04", iconId: 34},
+   "t40" : {shortname: "FCB", iconId: 451261},
+   "t54" : {shortname: "BSC", iconId: 28},
+   "t65" : {shortname: "KOE", iconId: 20},
+   "t81" : {shortname: "M05", iconId: 31},
+   "t87" : {shortname: "BMG", iconId: 9},
+   "t91" : {shortname: "SGE", iconId: 451246},
+   "t95" : {shortname: "FCA", iconId: 16},
+   "t100": {shortname: "HSV", iconId: 26},
+   "t112": {shortname: "SCF", iconId: 33},
+   "t118": {shortname: "D98", iconId: 1055756},
+   "t123": {shortname: "TSG", iconId: 6},
+   "t131": {shortname: "WOB", iconId: 42},
+   "t134": {shortname: "SVW", iconId: 39},
+   "t171": {shortname: "FCI", iconId: 23},
+   "t1635":{shortname: "RBL", iconId: 32}
 };
 
 knattleikrUserApp.factory('apiFactory', function($http) {
@@ -90,6 +90,11 @@ knattleikrUserApp.controller('knattleikrUserController', function($scope, $sce, 
          returnValue = match.usertipp.pointsTeam1 + ":" + match.usertipp.pointsTeam2;
       }
       return $sce.trustAsHtml(returnValue);
+   };
+
+   $scope.showIcon = function(match, teamNr) {
+      var iconId = teamShort["t"+match['Team'+teamNr].TeamId].iconId;
+      return "http://s.bundesliga.de/assets/img/" + (Math.floor(iconId/10000)+1) * 10000 + "/" + iconId + "_original.svg";
    };
 
    $scope.showTeamName = function(match, teamNr) {
