@@ -370,12 +370,17 @@ module.exports = function(app, Settings) {
          });         
       } else {
          // Userdetails zurückschreiben
+         var gefaehrdeteUser = [];
          async.forEach(Object.keys(users), (userid, callback) => {
             
             // Deaktivieren?
             var isAktiv = true;
             if(users[userid].spiele + Settings.maxVerpassteSpiele < gesamtzahlSpiele)
                isAktiv = false;
+            else
+               // Gefährdet?
+               if(users[userid].spiele + Settings.maxVerpassteSpiele < (gesamtzahlSpiele + 9))
+                  gefaehrdeteUser.push(users[userid].nickname);
 
             UserDetail.update({fiUser: new mongoose.Types.ObjectId(userid)}, {$set: {punkte: users[userid].punkte, spiele: users[userid].spiele, wertung: users[userid].wertung, isAktiv: isAktiv}}, err => {
                callback();
@@ -396,7 +401,7 @@ module.exports = function(app, Settings) {
             });
 
             Einzeltabelle.update({}, {$set: {tabelleninhalt: userArray}}, {upsert: true}, (err, results) => {
-               res.json({err: 0, message: 'Einzelwertung erfolgreich berechnet.'});
+               res.json({err: 0, message: 'Einzelwertung erfolgreich berechnet.' + (gefaehrdeteUser.length?'Gefährdet: ' + gefaehrdeteUser.join('/'):'')});
             });
 
          });
