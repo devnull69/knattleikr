@@ -397,7 +397,7 @@ module.exports = function(app, Settings) {
             }
 
             userArray.sort((user1, user2) => {
-               return user2.wertung - user1.wertung;
+               return (user2.wertung - user1.wertung) || (user2.punkte - user1.punkte);
             });
 
             Einzeltabelle.update({}, {$set: {tabelleninhalt: userArray}}, {upsert: true}, (err, results) => {
