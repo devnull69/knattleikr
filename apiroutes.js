@@ -588,7 +588,25 @@ module.exports = function(app, Settings) {
          });
 
          Lieferanten.update({fiUser: null}, {$set: {tabelleninhalt: teamArray}}, {upsert: true}, (err, results) => {
-            res.json({err: 0, message: 'Lieferantenwertung erfolgreich berechnet.'});
+            // User-Lieferanten-Tabellen berechnen
+            async.forEach(Object.keys(users), (userid, callback) => {
+               var userTeamArray = [];
+               // User-Teams-Objekt in Array umwandeln
+               var userTeamArray = [];
+               for(teamid in users[userid]) {
+                  userTeamArray.push(users[userid][teamid]);
+               }
+
+               userTeamArray.sort((team1, team2) => {
+                  return (team2.wertung - team1.wertung) || (team2.punkte - team1.punkte);
+               });
+
+               Lieferanten.update({fiUser: new mongoose.Types.ObjectId(userid)}, {$set: {tabelleninhalt: userTeamArray}}, {upsert: true}, (err, results) => {
+                  callback();
+               });
+            }, err => {
+                  res.json({err: 0, message: 'Lieferantenwertungen erfolgreich berechnet.'});
+               });
          });
       }
    }

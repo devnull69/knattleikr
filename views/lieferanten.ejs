@@ -44,7 +44,7 @@
    <div style="min-height: 500px;">
       <div class="hidden-xs col-md-3 col-lg-4"></div>
       <div class="col-xs-12 col-md-6 col-lg-4">
-         <h4>Zuverlässige Punktlieferanten</h4>
+         <h4><%= otherUser?(user.nickname==otherUser?"Deine persönlichen Punktlieferanten":"Persönliche Punktlieferanten - " + otherUser):"Zuverlässige Punktlieferanten" %></h4>
          <table class="table table-striped" id="mytable">
             <thead>
                <tr>

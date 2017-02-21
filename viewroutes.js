@@ -303,7 +303,7 @@ module.exports = function(app, Settings) {
 
    app.get('/lieferanten', canBeLoggedIn, (req, res) => {
       Lieferanten.findOne({fiUser: null}, (err, tabelle) => {
-         res.render('lieferanten', {user: req.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: req.user?Helper.md5(req.user.email):null});
+         res.render('lieferanten', {user: req.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: req.user?Helper.md5(req.user.email):null, otherUser: null});
       });
    });
 
@@ -336,6 +336,18 @@ module.exports = function(app, Settings) {
                      });
                } else
                   res.render('user', {user: null, userdetail: null, spieltagNr: spieltagNr, otherUser: andererUser, gravatarhash: null});
+            });
+         } else {
+            res.redirect('/');
+         }
+      });
+   });
+
+   app.get('/user/:nickname/lieferanten', canBeLoggedIn, (req, res) => {
+      User.findOne({nickname: req.params.nickname}, (err, otherUser) => {
+         if(otherUser) {
+            Lieferanten.findOne({fiUser: new mongoose.Types.ObjectId(otherUser._id)}, (err, tabelle) => {
+               res.render('lieferanten', {user: req.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: req.user?Helper.md5(req.user.email):null, otherUser: otherUser.nickname});
             });
          } else {
             res.redirect('/');
