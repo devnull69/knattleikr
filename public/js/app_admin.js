@@ -9,6 +9,10 @@ knattleikrAdminApp.factory('apiFactory', function($http) {
       return $http.post(urlBase + 'config', JSON.stringify(config));
    };
 
+   apiFactory.sendMail = function(joinNicknames, betreff, mailbody) {
+      return $http.post(urlBase + 'sendmail', {joinNicknames: joinNicknames, betreff: betreff, mailbody: mailbody});
+   };
+
    apiFactory.einzelwertung = function() {
       return $http.get(urlBase + 'einzelwertung');
    };
@@ -100,6 +104,23 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, apiF
       });
    };
 
+   $scope.sendMail = function() {
+      $('#spinner_sendmail').show();
+      apiFactory.sendMail($scope.joinNicknames, $scope.betreff, $scope.mailbody).then(function(response) {
+         $('#spinner_sendmail').hide();
+         switch(response.data.err) {
+            case 0:
+               showMessage('success', response.data.message);
+               break;
+            case 1:
+               showMessage('danger', response.data.message);
+               break;
+            case 2:
+               window.location.href = "/?err=1";
+               break;
+         }
+      });
+   };
 });
 
 function showMessage(type, message) {

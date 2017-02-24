@@ -32,9 +32,6 @@
          <div class="form-group">
             <label class="white">Aktueller Spieltag</label>
             <input type="text" class="form-control" name="aktuellerSpieltag" ng-model="aktuellerSpieltag"/>
-         </div>
-
-         <div class="form-group">
             <button type="button" ng-click="saveConfig()" class="btn btn-lg">Speichern</button>
          </div>
 
@@ -44,12 +41,26 @@
 
          <hr>
 
-         <input type="text" class="form-control" ng-model="wertungsSpieltag"/><br/>
+         <input type="text" class="form-control" ng-model="wertungsSpieltag"/>
          <button type="button" ng-click="spieltagwertung()" class="btn btn-lg">Spieltagwertung berechnen <i id="spinner_spieltagwertung" class="fa fa-refresh fa-spin" style="display:none"></i></button>
 
          <hr>
 
          <button type="button" ng-click="lieferantenwertung()" class="btn btn-lg">Lieferantenwertung berechnen <i id="spinner_lieferantenwertung" class="fa fa-refresh fa-spin" style="display:none"></i></button>
+
+         <hr>
+
+         <div class="form-group">
+            <label class="white">Empfängerliste (Komma getrennt, leere Liste = alle User)</label>
+            <input type="text" class="form-control" ng-model="joinNicknames"/><br/>
+         </div>
+         <div class="form-group">
+            <label class="white">Betreff</label>
+            <input type="text" class="form-control" ng-model="betreff"/>
+         </div>
+         <textarea class="form-control" ng-model="mailbody" rows="10" cols="80"></textarea>
+         <span class="white">#{hostUrl} wird ersetzt durch aktuelle Host-Url</span><br/>
+         <button type="button" ng-click="sendMail()" class="btn btn-lg">Mail senden <i id="spinner_sendmail" class="fa fa-refresh fa-spin" style="display: none"></i></button>
       </div>
       <div class="hidden-xs col-md-2 col-lg-3"></div>
    </div>

@@ -10,6 +10,8 @@ var Config = require('./model/config.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
 var Spieltagtabelle = require('./model/spieltagtabelle.js');
 var Lieferanten = require('./model/lieferanten.js');
+var Mailer = require('sendgrid').mail;
+var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 
 var gesamtzahlSpiele = 0;
 
@@ -609,5 +611,73 @@ module.exports = function(app, Settings) {
                });
          });
       }
+   }
+   app.post('/api/admin/sendmail', (req, res) => {
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            if(userdetail.isAdmin) {
+               var joinNicknames = req.body.joinNicknames;
+               var betreff = req.body.betreff;
+               var mailbody = req.body.mailbody;
+
+               // Host-Url ersetzen
+               mailbody = mailbody.replace(/\#\{hostUrl\}/g, Settings.hostUrl);
+
+               if(!joinNicknames) {
+                  User.find({}, (err, users) => {
+                     async.forEach(users, (user, callback) => {
+                        sendMailToUser(user, betreff, mailbody, callback);
+                     }, err => {
+                        res.json({err: 0, message: 'Mail(s) erfolgreich gesendet'});
+                     });
+                  });
+               } else {
+                  var nicknames = joinNicknames.split(',');
+                  async.forEach(nicknames, (nickname, callback) => {
+                     User.findOne({nickname: nickname}, (err, user) => {
+                        if(user) {
+                           console.log(user.email);
+                           sendMailToUser(user, betreff, mailbody, callback);
+                        } else
+                           callback();
+                     });
+                  }, err => {
+                     res.json({err: 0, message: 'Mail(s) erfolgreich gesendet'});
+                  });
+               }
+            } else {
+               res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+            }
+         });
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+      }
+   });
+
+   function sendMailToUser(user, betreff, mailbody, callback) {
+      var from_email = new Mailer.Email('noreply@knattleikr.herokuapp.com', 'Knattleikr - Bundesligatippspiel');
+      var to_email = new Mailer.Email(user.email);
+      var subject = betreff;
+
+      var contentBody = '<html><head><meta charset="UTF-8"/></head><body>';
+      contentBody += '<p>Hallo ' + user.nickname + '</p>';
+      contentBody += mailbody;
+      contentBody += '<p>Liebe Grüße<br/>Dein KNATTLEIKR-Team</p>'
+      contentBody += '</body></html>';
+
+      var content = new Mailer.Content('text/html', contentBody);
+      var mail = new Mailer.Mail(from_email, subject, to_email, content);
+
+      var request = sg.emptyRequest({
+        method: 'POST',
+        path: '/v3/mail/send',
+        body: mail.toJSON(),
+      });
+
+      sg.API(request, function(error, response) {
+         if(error)
+            res.json({err: 1, message: 'Fehler beim Senden der Email(s).'});
+         callback();
+      });      
    }
 };
