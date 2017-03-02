@@ -1,0 +1,13 @@
+<div class="form-group">
+   <label class="white">Empfängerliste (Komma getrennt, leere Liste = alle User)</label>
+   <input type="text" class="form-control" ng-model="templateData.joinNicknames"/><br/>
+</div>
+<div class="form-group">
+   <label class="white">Betreff</label>
+   <input type="text" class="form-control" ng-model="templateData.betreff"/>
+</div>
+<textarea class="form-control" ng-model="templateData.mailbody" rows="10" cols="80"></textarea>
+<span class="white">#{hostUrl} wird ersetzt durch aktuelle Host-Url</span><br/>
+<button type="button" ng-click="sendMail()" class="btn btn-lg">
+   Mail senden <i id="spinner_sendmail" class="fa fa-refresh fa-spin" style="display: none"></i>
+</button>

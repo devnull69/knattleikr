@@ -636,7 +636,6 @@ module.exports = function(app, Settings) {
                   async.forEach(nicknames, (nickname, callback) => {
                      User.findOne({nickname: nickname}, (err, user) => {
                         if(user) {
-                           console.log(user.email);
                            sendMailToUser(user, betreff, mailbody, callback);
                         } else
                            callback();

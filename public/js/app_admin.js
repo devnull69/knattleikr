@@ -1,5 +1,29 @@
-var knattleikrAdminApp = angular.module('knattleikrAdminApp', []);
+var knattleikrAdminApp = angular.module('knattleikrAdminApp', ['ngRoute']);
 
+// Routes
+knattleikrAdminApp.config(function($routeProvider) {
+   $routeProvider
+      .when('/', {
+         templateUrl: '/partials/admin_aktspieltag.htm'
+      })
+      .when('/gesamtwertung', {
+         templateUrl: '/partials/admin_gesamtwertung.htm'
+      })
+      .when('/spieltagwertung', {
+         templateUrl: '/partials/admin_spieltagwertung.htm'
+      })
+      .when('/lieferantenwertung', {
+         templateUrl: '/partials/admin_lieferantenwertung.htm'
+      })
+      .when('/sendmail', {
+         templateUrl: '/partials/admin_sendmail.htm'
+      })
+      .otherwise({
+         redirectTo: '/'
+      });
+});
+
+// Factory
 knattleikrAdminApp.factory('apiFactory', function($http) {
    var urlBase = "api/admin/";
    var apiFactory = {};
@@ -28,14 +52,61 @@ knattleikrAdminApp.factory('apiFactory', function($http) {
    return apiFactory;
 });
 
-knattleikrAdminApp.controller('knattleikrAdminController', function($scope, apiFactory) {
+// Controller
+knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $window, apiFactory) {
 
    $scope.sessionAktiv = sessionAktiv;
-   $scope.aktuellerSpieltag = aktuellerSpieltag;
-   $scope.wertungsSpieltag = aktuellerSpieltag;
+   $scope.templateData = {};
+   $scope.templateData.aktuellerSpieltag = aktuellerSpieltag;
+   $scope.templateData.wertungsSpieltag = aktuellerSpieltag;
+   $scope.templateData.joinNicknames = "";
+   $scope.templateData.betreff = "";
+   $scope.templateData.mailbody = "";
+
+   $scope.adminlinks = [
+      {
+         text: 'Spieltag festlegen',
+         hash: '',
+      },
+      {
+         text: 'Gesamtwertung',
+         hash: 'gesamtwertung'
+      },
+      {
+         text: 'Spieltagwertung',
+         hash: 'spieltagwertung'
+      },
+      {
+         text: 'Lieferantenwertung',
+         hash: 'lieferantenwertung' 
+      },
+      {
+         text: 'Mail senden',
+         hash: 'sendmail'
+      }
+   ];
+
+   var routeIndex = 0;
+   switch($window.location.hash.substring(3)) {
+      case 'gesamtwertung':
+         routeIndex = 1;
+         break;
+      case 'spieltagwertung':
+         routeIndex = 2;
+         break;
+      case 'lieferantenwertung':
+         routeIndex = 3;
+         break;
+      case 'sendmail':
+         routeIndex = 4;
+         break;
+      default:
+         routeIndex = 0;
+   }
+   $scope.selectedLink = $scope.adminlinks[routeIndex];
 
    $scope.saveConfig = function() {
-      apiFactory.saveConfig({aktuellerSpieltag: $scope.aktuellerSpieltag}).then(function(response) {
+      apiFactory.saveConfig({aktuellerSpieltag: $scope.templateData.aktuellerSpieltag.toString()}).then(function(response) {
          switch(response.data.err) {
             case 0:
                showMessage('success', response.data.message);
@@ -70,7 +141,7 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, apiF
 
    $scope.spieltagwertung = function() {
       $('#spinner_spieltagwertung').show();
-      apiFactory.spieltagwertung($scope.wertungsSpieltag).then(function(response) {
+      apiFactory.spieltagwertung($scope.templateData.wertungsSpieltag).then(function(response) {
          $('#spinner_spieltagwertung').hide();
          switch(response.data.err) {
             case 0:
@@ -106,7 +177,7 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, apiF
 
    $scope.sendMail = function() {
       $('#spinner_sendmail').show();
-      apiFactory.sendMail($scope.joinNicknames, $scope.betreff, $scope.mailbody).then(function(response) {
+      apiFactory.sendMail($scope.templateData.joinNicknames, $scope.templateData.betreff, $scope.templateData.mailbody).then(function(response) {
          $('#spinner_sendmail').hide();
          switch(response.data.err) {
             case 0:
@@ -120,6 +191,14 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, apiF
                break;
          }
       });
+   };
+
+   $scope.setAktiv = function(link) {
+      $scope.selectedLink = link;
+   };
+
+   $scope.isAktiv = function(link) {
+      return $scope.selectedLink === link;
    };
 });
 
