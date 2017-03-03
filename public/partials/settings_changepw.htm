@@ -1,0 +1,19 @@
+<h4><span class="fa fa-sign-in"></span>Passwort ändern</h4>
+<div class="form-group">
+   <label class="white">Altes Passwort</label>
+   <input type="password" class="form-control" ng-model="templateData.passwordold" />
+</div>
+<div class="form-group">
+   <label class="white">Neues Passwort</label>
+   <input type="password" class="form-control" ng-model="templateData.password1" />
+</div>
+<div class="form-group">
+   <label class="white">Neues Passwort wiederholen</label>
+   <input type="password" class="form-control" ng-model="templateData.password2" />
+</div>
+
+<div class="form-group">
+   <button class="btn btn-lg" ng-click="changePw()">
+      Passwort ändern <i id="spinner_changepw" class="fa fa-refresh fa-spin" style="display:none"></i>
+   </button>
+</div>

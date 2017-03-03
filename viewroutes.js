@@ -11,6 +11,24 @@ var Lieferanten = require('./model/lieferanten.js');
 var Helper = require('./util/helper.js');
 
 // Authentication Middleware
+function mustBeLoggedIn(req, res, next) {
+   if(req.session.user) {
+      UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+         if(!userdetail) {
+            req.session.user = null;
+            req.session.destroy();
+            return res.redirect('/?err=1');
+         }
+         req.userdetail = userdetail;
+         next();
+      });
+   } else {
+      req.session.user = null;
+      req.session.destroy();
+      res.redirect('/?err=1');
+   }
+}
+
 function mustNotBeLoggedIn(req, res, next) {
    if(!req.session.user)
       next();
@@ -208,7 +226,7 @@ module.exports = function(app, Settings) {
             var contentBody = '<html><head><meta charset="UTF-8"/></head><body>';
             contentBody += '<p>Hallo ' + user.nickname + '</p>';
             contentBody += '<p>Du erhältst diese Mail, da Du Dein Passwort auf KNATTLEIKR zurücksetzen möchtest.</p>';
-            contentBody += '<a href="' + Settings.hostUrl + '/changepw?key=' + forgottenPwKey + '">Hier klicken zum Zurücksetzen Deines Passworts</a>';
+            contentBody += '<a href="' + Settings.hostUrl + '/resetpw?key=' + forgottenPwKey + '">Hier klicken zum Zurücksetzen Deines Passworts</a>';
             contentBody += '<p>Liebe Grüße<br/>Dein KNATTLEIKR-Team</p>'
             contentBody += '</body></html>';
 
@@ -239,7 +257,7 @@ module.exports = function(app, Settings) {
       return result;
    }
 
-   app.get('/changepw', mustNotBeLoggedIn, (req, res) => {
+   app.get('/resetpw', mustNotBeLoggedIn, (req, res) => {
       if(req.query.key) {
          // forgottenPwKey suchen
          User.findOne({forgottenPwKey: req.query.key}, (err, user) => {
@@ -248,51 +266,94 @@ module.exports = function(app, Settings) {
             if(!user)
                return res.redirect('/?err=1');
 
-            res.render('changepw', {message: '', errmessage: '', forgottenPwKey: req.query.key});
+            res.render('resetpw', {message: '', errmessage: '', forgottenPwKey: req.query.key});
          });
       }
       else
          res.redirect('/?err=1');
    });
 
-   app.post('/changepw', mustNotBeLoggedIn, (req, res) => {
+   app.post('/resetpw', mustNotBeLoggedIn, (req, res) => {
       var forgottenPwKey = req.body.forgottenPwKey;
       var password1 = req.body.password1;
       var password2 = req.body.password2;
 
-      // Pflichtfelder?
-      if(forgottenPwKey == '' || password1 == '' || password2 == '')
-         return res.render('changepw', {errmessage: 'Fehlende Information', message: '', forgottenPwKey: forgottenPwKey});
+      // if(!forgottenPwKey && req.session.user) {
+      //    // Passwort ändern
+      //    var passwordold = req.body.passwordold;
 
-      // Passwörter gleich?
-      if(password1 != password2)
-         return res.render('changepw', {errmessage: 'Die Passwörter stimmen nicht überein', message: '', forgottenPwKey: forgottenPwKey});
+      //    // Pflichtfelder?
+      //    if(passwordold == '' || password1 == '' || password2 == '')
+      //       return res.render('changepw', {errmessage: 'Fehlende Information', message: '', forgottenPwKey: ""});
 
-      // Bcrypt anwenden
-      var salt = bcrypt.genSaltSync(9);
-      var hash = bcrypt.hashSync(password1, salt);
+      //    // Altes Passwort prüfen
+      //    if(!bcrypt.compareSync(passwordold, req.session.user.password))
+      //       return res.render('changepw', {errmessage: 'Das alte Passwort ist falsch', message: '', forgottenPwKey: ""});
 
-      // forgottenPwKey suchen
-      User.findOne({forgottenPwKey: forgottenPwKey}, (err, user) => {
-         if(err)
-            return res.render('changepw', {errmessage: 'Es ist ein Fehler aufgetreten', message: '', forgottenPwKey: forgottenPwKey});
+      //    // Passwörter gleich?
+      //    if(password1 != password2)
+      //       return res.render('changepw', {errmessage: 'Die neuen Passwörter stimmen nicht überein', message: '', forgottenPwKey: ""});
 
-         if(!user)
-            return res.redirect('/?err=1');
+      //    // Bcrypt anwenden
+      //    var salt = bcrypt.genSaltSync(9);
+      //    var hash = bcrypt.hashSync(password1, salt);
 
-         user.password = hash;
-         user.forgottenPwKey = "";
-         user.save(err => {
+      //    // User updaten
+      //    req.session.user.password = hash;
+      //    req.session.user.forgottenPwKey = "";
+      //    User.findOne({nickname: req.session.user.nickname}, (err, user) => {
+      //       if(!user)
+      //          return res.render('changepw', {errmessage: 'Es ist ein Fehler aufgetreten', message: '', forgottenPwKey: ""});
+      //       user.password = hash;
+      //       user.forgottenPwKey = "";
+      //       user.save(err => {
+      //          if(err)
+      //             return res.render('changepw', {errmessage: 'Es ist ein Fehler aufgetreten', message: '', forgottenPwKey: ""});
+      //          req.session.user = user;
+      //          res.render('changepw', {errmessage: '', message: 'Das Passwort wurde erfolgreich geändert', forgottenPwKey: ""});
+      //       });
+      //    });
+      // } else {
+         // Passwort zurücksetzen
+         // Pflichtfelder?
+         if(forgottenPwKey == '' || password1 == '' || password2 == '')
+            return res.render('resetpw', {errmessage: 'Fehlende Information', message: '', forgottenPwKey: forgottenPwKey});
+
+         // Passwörter gleich?
+         if(password1 != password2)
+            return res.render('resetpw', {errmessage: 'Die Passwörter stimmen nicht überein', message: '', forgottenPwKey: forgottenPwKey});
+
+         // Bcrypt anwenden
+         var salt = bcrypt.genSaltSync(9);
+         var hash = bcrypt.hashSync(password1, salt);
+
+         // forgottenPwKey suchen
+         User.findOne({forgottenPwKey: forgottenPwKey}, (err, user) => {
             if(err)
-               return res.render('changepw', {errmessage: 'Es ist ein Fehler aufgetreten', message: '', forgottenPwKey: forgottenPwKey});
-            req.session.user = user;
-            res.redirect('/');
+               return res.render('resetpw', {errmessage: 'Es ist ein Fehler aufgetreten', message: '', forgottenPwKey: forgottenPwKey});
+
+            if(!user)
+               return res.redirect('/?err=1');
+
+            user.password = hash;
+            user.forgottenPwKey = "";
+            user.save(err => {
+               if(err)
+                  return res.render('resetpw', {errmessage: 'Es ist ein Fehler aufgetreten', message: '', forgottenPwKey: ""});
+               req.session.user = null;
+               req.session.destroy();
+               res.render('resetpw', {errmessage: '', message: 'Das Passwort wurde erfolgreich zurückgesetzt. Du kannst Dich jetzt einloggen.', forgottenPwKey: ""});
+            });
          });
-      });
+      // }
    });
 
    app.get('/admin', mustBeAdmin, (req, res) => {
       res.render('admin', {user: req.session.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, gravatarhash: Helper.md5(req.session.user.email)});
+   });
+
+   app.get('/settings', mustBeLoggedIn, (req, res) => {
+      res.render('settings', {user: req.session.user, userdetail: req.userdetail, spieltagNr: -1, gravatarhash: Helper.md5(req.session.user.email)});
    });
 
    app.get('/tabelle', canBeLoggedIn, (req, res) => {

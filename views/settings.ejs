@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de" ng-app="knattleikrSettingsApp">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width">
+   <title>KNATTLEIKR - Einstellungen</title>
+
+   <% include cssAndScripts %>
+
+   <script>
+      $(function() {
+         $('#nav_settings').addClass('active');
+      });
+   </script>
+
+   <script type="text/javascript" src="/js/app_settings.js"></script>
+</head>
+<body ng-controller="knattleikrSettingsController">
+
+   <% include nav %>
+
+   <div class="container" style="margin-top: 70px;">
+      <div id="alertmessage" class="alert" style="display:none;">
+         <span id="messagetext"></span>
+      </div>
+   </div>
+
+   <div class="container-fluid" style="min-height: 500px;">
+      <div class="row-fluid">
+         <div class="col-xs-12 col-md-3">
+            <nav class="well sidebar-nav">
+               <ul class="nav nav-list">
+                  <li class="nav-header"><h4>Einstellungen</h4></li>
+                  <li ng-repeat="link in settingslinks" ng-class="{aktiv: isAktiv(link)}"><a class="white" ng-href="#!/{{link.hash}}" ng-click="setAktiv(link)">{{link.text}}</a></li>
+               </ul>                              
+            </nav>
+         </div>
+         <div class="col-xs-12 col-md-6">
+            <div ng-view>
+               <!--- placeholder for content -->
+            </div>
+
+         </div>
+         <div class="hidden-xs col-md-3"></div>
+      </div>
+   </div>
+   <div class="device-xs visible-xs"></div>
+   <div class="device-sm visible-sm"></div>
+</body>
+</html>

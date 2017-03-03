@@ -1,3 +1,4 @@
+var bcrypt = require('bcrypt-nodejs');
 var mongoose = require('mongoose');
 var OpenLigaDB = require('./openligadb.js');
 var Helper = require('./util/helper.js');
@@ -281,6 +282,47 @@ module.exports = function(app, Settings) {
          else
             res.json([]);
       });
+   });
+
+   // Einstellungen
+   app.post('/api/settings/changepw', (req,res) => {
+      if(req.session.user) {
+         var passwordold = req.body.passwordold;
+         var password1 = req.body.password1;
+         var password2 = req.body.password2;
+
+         // Pflichtfelder?
+         if(passwordold == '' || password1 == '' || password2 == '')
+            return res.json({err: 1, message: 'Fehlende Information'});
+
+         // Altes Passwort prüfen
+         if(!bcrypt.compareSync(passwordold, req.session.user.password))
+            return res.json({err: 1, message: 'Das alte Passwort ist falsch'});
+
+         // Passwörter gleich?
+         if(password1 != password2)
+            return res.json({err: 1, message: 'Die neuen Passwörter stimmen nicht überein'});
+
+         // Bcrypt anwenden
+         var salt = bcrypt.genSaltSync(9);
+         var hash = bcrypt.hashSync(password1, salt);
+
+         // User updaten
+         User.findOne({nickname: req.session.user.nickname}, (err, user) => {
+            if(!user)
+               return res.json({err: 1, message: 'Es ist ein Fehler aufgetreten'});
+            user.password = hash;
+            user.forgottenPwKey = "";
+            user.save(err => {
+               if(err)
+                  return res.json({err: 1, message: 'Es ist ein Fehler aufgetreten'});
+               req.session.user = user;
+               res.json({err: 0, message: 'Das Passwort wurde erfolgreich geändert'});
+            });
+         });
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+      }
    });
 
    // Administration

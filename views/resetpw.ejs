@@ -38,9 +38,15 @@
             <div class="alert alert-success"><%= message %></div>
          <% }%>
 
-         <h4><span class="fa fa-sign-in"></span> Passwort zurücksetzen</h4>
-         <form action="/changepw" method="post">
+         <h4><span class="fa fa-sign-in"></span>Passwort zurücksetzen</h4>
+         <form action="/resetpw" method="post">
             <input type="hidden" name="forgottenPwKey" value="<%= forgottenPwKey %>" />
+<!--            <% if(!forgottenPwKey) {%>
+               <div class="form-group">
+                  <label class="white">Altes Passwort</label>
+                  <input type="password" class="form-control" name="passwordold" />
+               </div>
+            <% }%> -->
             <div class="form-group">
                <label class="white">Neues Passwort</label>
                <input type="password" class="form-control" name="password1" />
