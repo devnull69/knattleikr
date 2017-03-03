@@ -353,6 +353,8 @@ module.exports = function(app, Settings) {
    });
 
    app.get('/settings', mustBeLoggedIn, (req, res) => {
+      if(req.session.user.notification == undefined)
+         req.session.user.notification = true;
       res.render('settings', {user: req.session.user, userdetail: req.userdetail, spieltagNr: -1, gravatarhash: Helper.md5(req.session.user.email)});
    });
 

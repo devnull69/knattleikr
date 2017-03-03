@@ -325,6 +325,32 @@ module.exports = function(app, Settings) {
       }
    });
 
+   app.post('/api/settings/savesettings', (req, res) => {
+      if(req.session.user) {
+         var notification = req.body.notification;
+
+         if(notification===true || notification===false) {
+            User.findOne({nickname: req.session.user.nickname}, (err, user) => {
+               if(!user)
+                  return res.json({err: 1, message: 'Es ist ein Fehler aufgetreten'});
+
+               user.notification = notification;
+               user.save(err => {
+                  if(err)
+                     return res.json({err: 1, message: 'Es ist ein Fehler aufgetreten'});
+                  req.session.user = user;
+                  res.json({err: 0, message: 'Die Einstellung wurde erfolgreich gespeichert'});
+               });
+
+            });
+         } else {
+            return res.json({err: 1, message: 'Es ist ein Fehler aufgetreten'});
+         }
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+      }
+   });
+
    // Administration
 
    app.post('/api/admin/config', (req, res) => {
@@ -696,29 +722,34 @@ module.exports = function(app, Settings) {
    });
 
    function sendMailToUser(user, betreff, mailbody, callback) {
-      var from_email = new Mailer.Email('noreply@knattleikr.herokuapp.com', 'Knattleikr - Bundesligatippspiel');
-      var to_email = new Mailer.Email(user.email);
-      var subject = betreff;
+      if(user.notification == undefined || user.notification === true) {
+         var from_email = new Mailer.Email('noreply@knattleikr.herokuapp.com', 'Knattleikr - Bundesligatippspiel');
+         var to_email = new Mailer.Email(user.email);
+         var subject = betreff;
 
-      var contentBody = '<html><head><meta charset="UTF-8"/></head><body>';
-      contentBody += '<p>Hallo ' + user.nickname + '</p>';
-      contentBody += mailbody;
-      contentBody += '<p>Liebe Grüße<br/>Dein KNATTLEIKR-Team</p>'
-      contentBody += '</body></html>';
+         var contentBody = '<html><head><meta charset="UTF-8"/></head><body>';
+         contentBody += '<p>Hallo ' + user.nickname + '</p>';
+         contentBody += mailbody;
+         contentBody += '<p>Liebe Grüße<br/>Dein KNATTLEIKR-Team</p>'
+         contentBody += '</body></html>';
 
-      var content = new Mailer.Content('text/html', contentBody);
-      var mail = new Mailer.Mail(from_email, subject, to_email, content);
+         var content = new Mailer.Content('text/html', contentBody);
+         var mail = new Mailer.Mail(from_email, subject, to_email, content);
 
-      var request = sg.emptyRequest({
-        method: 'POST',
-        path: '/v3/mail/send',
-        body: mail.toJSON(),
-      });
+         var request = sg.emptyRequest({
+           method: 'POST',
+           path: '/v3/mail/send',
+           body: mail.toJSON(),
+         });
 
-      sg.API(request, function(error, response) {
-         if(error)
-            res.json({err: 1, message: 'Fehler beim Senden der Email(s).'});
+         sg.API(request, function(error, response) {
+            if(error)
+               res.json({err: 1, message: 'Fehler beim Senden der Email(s).'});
+            callback();
+         });      
+      } else {
+         console.log("Notification deaktiviert: " + user.nickname);       
          callback();
-      });      
+      }
    }
 };

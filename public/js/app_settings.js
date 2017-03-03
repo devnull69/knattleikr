@@ -4,6 +4,9 @@ var knattleikrSettingsApp = angular.module('knattleikrSettingsApp', ['ngRoute'])
 knattleikrSettingsApp.config(function($routeProvider) {
    $routeProvider
       .when('/', {
+         templateUrl: '/partials/settings_notify.htm'
+      })
+      .when('/changepw', {
          templateUrl: '/partials/settings_changepw.htm'
       })
       .otherwise({
@@ -21,6 +24,10 @@ knattleikrSettingsApp.factory('apiFactory', function($http) {
       return $http.post(urlBase + 'changepw', {passwordold: altesPasswort, password1: neuesPasswort, password2: neuesPasswort2});
    };
 
+   apiFactory.saveSettings = function(notification) {
+      return $http.post(urlBase + 'savesettings', {notification: notification});
+   }
+
    return apiFactory;
 });
 
@@ -28,20 +35,29 @@ knattleikrSettingsApp.factory('apiFactory', function($http) {
 knattleikrSettingsApp.controller('knattleikrSettingsController', function($scope, $window, apiFactory) {
 
    $scope.sessionAktiv = sessionAktiv;
+
    $scope.templateData = {};
    $scope.templateData.passwordold = "";
    $scope.templateData.password1 = "";
    $scope.templateData.password2 = "";
+   $scope.templateData.notification = notification;
 
    $scope.settingslinks = [
       {
-         text: 'Passwort ändern',
+         text: 'Benachrichtigungen',
          hash: '',
+      },
+      {
+         text: 'Passwort ändern',
+         hash: 'changepw',
       }
    ];
 
    var routeIndex = 0;
    switch($window.location.hash.substring(3)) {
+      case 'changepw':
+         routeIndex = 1;
+         break;
       default:
          routeIndex = 0;
    }
@@ -51,6 +67,24 @@ knattleikrSettingsApp.controller('knattleikrSettingsController', function($scope
       $('#spinner_changepw').show();
       apiFactory.changePw($scope.templateData.passwordold, $scope.templateData.password1, $scope.templateData.password2).then(function(response) {
          $('#spinner_changepw').hide();
+         switch(response.data.err) {
+            case 0:
+               showMessage('success', response.data.message);
+               break;
+            case 1:
+               showMessage('danger', response.data.message);
+               break;
+            case 2:
+               window.location.href = "/?err=1";
+               break;
+         }
+      });
+   };
+
+   $scope.saveSettings = function() {
+      $('#spinner_savesettings').show();
+      apiFactory.saveSettings($scope.templateData.notification).then(function(response) {
+         $('#spinner_savesettings').hide();
          switch(response.data.err) {
             case 0:
                showMessage('success', response.data.message);
