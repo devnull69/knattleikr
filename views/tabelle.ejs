@@ -13,6 +13,9 @@
       });
    </script>
 
+   <script src="https://cdn.anychart.com/js/7.13.0/anychart-bundle.min.js"></script>
+   <link rel="stylesheet" href="https://cdn.anychart.com/css/7.13.0/anychart-ui.min.css" />
+   
    <script type="text/javascript" src="/js/app_tabelle.js"></script>
 </head>
 <body ng-controller="knattleikrTabelleController">
@@ -39,18 +42,48 @@
                   <th>Pkt.</th>
                   <th>Spiele</th>
                   <th>Wertung</th>
+                  <th>Distanz</th>
                </tr>
             </thead>
             <tbody>
                <% var letzteWertung = -2; %>
                <% var letztePunkte = -1; %>
-               <% for(i=0; i<tabelle.tabelleninhalt.length; i++) {%>
+               <% var pktPlatzEins; %>
+               <% var spielePlatzEins; %>
+               <% var wertungPlatzEins; %>
+               <% var maxpkt = 0; %>
+               <% for(i=0; i<tabelle.tabelleninhalt.length; i++) {
+                     if(tabelle.tabelleninhalt[i].punkte > maxpkt)
+                        maxpkt = tabelle.tabelleninhalt[i].punkte;
+                  }
+                  for(i=0; i<tabelle.tabelleninhalt.length; i++) {
+                     if(i==0) {
+                        pktPlatzEins = tabelle.tabelleninhalt[i].punkte;
+                        spielePlatzEins = tabelle.tabelleninhalt[i].spiele;
+                        wertungPlatzEins = (pktPlatzEins+6) / (spielePlatzEins+9);
+                     }
+                  %>
                   <tr>
                      <td><%= (letzteWertung==tabelle.tabelleninhalt[i].wertung && letztePunkte==tabelle.tabelleninhalt[i].punkte)?"":i+1 %></td>
                      <td><a class="userlink" href="/user/<%= tabelle.tabelleninhalt[i].nickname %>"><%= tabelle.tabelleninhalt[i].nickname %></a></td>
                      <td><%= tabelle.tabelleninhalt[i].punkte %></td>
                      <td><%= tabelle.tabelleninhalt[i].spiele %></td>
                      <td><%= tabelle.tabelleninhalt[i].wertung>-1?tabelle.tabelleninhalt[i].wertung.toFixed(3):"-" %></td>
+                     <td><%
+                        if(i==0 || tabelle.tabelleninhalt[i].wertung==-1) {
+                           %>-<%
+                        } else {
+                           var spielerPkt = tabelle.tabelleninhalt[i].punkte;
+                           var spielerSpiele = tabelle.tabelleninhalt[i].spiele;
+                           var spielerWertung = (spielerPkt+6) / (spielerSpiele+9);
+                           var distanz = 0;
+                           while(spielerWertung < wertungPlatzEins) {
+                              distanz++;
+                              spielerWertung = (spielerPkt+6+distanz) / (spielerSpiele+9);
+                           }
+                           %><a href="#" ng-click="showGauge('<%= tabelle.tabelleninhalt[i].nickname %>', <%=spielerPkt %>, <%=spielerSpiele %>, <%=pktPlatzEins %>, <%=spielePlatzEins %>, <%=maxpkt %>)">~ <%= distanz%></a><%
+                        }
+                     %></td>
                   </tr>
                <%    letzteWertung = tabelle.tabelleninhalt[i].wertung;
                      letztePunkte = tabelle.tabelleninhalt[i].punkte;
@@ -59,6 +92,7 @@
          </table>
          <hr/>
          <p class="white">Hier geht's zur >> <a href="/lieferanten">Tabelle der zuverlässigen Punktlieferanten</a></p>
+         <div id="gauge" style="height: 500px;"></div>
       </div>
       <div class="hidden-xs col-md-3 col-lg-4"></div>
    </div>
