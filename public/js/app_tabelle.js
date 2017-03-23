@@ -35,6 +35,7 @@ knattleikrTabelleApp.controller('knattleikrTabelleController', function($scope, 
       data.push(maxpkt);  // Referenzwert = die höchste derzeitige Gesamtpunktzahl
 
       var dataSet = anychart.data.set(data);
+      var view = dataSet.mapAs();
       var palette = anychart.palettes.distinctColors().items(['#1976d2', '#1976d2', '#1976d2', '#0c5aa8', '#1976d2', '#1976d2', '#1976d2', '#1976d2']);
 
          var makeBarWithBar = function (gauge, radius, i, width, without_stroke) {
@@ -54,8 +55,31 @@ knattleikrTabelleApp.controller('knattleikrTabelleController', function($scope, 
                          .offsetX(0);
              }
 
+             // Auf Null setzen vor Animation
+             view.set(i, "value", 0);
+
              gauge.bar(i).dataIndex(i).radius(radius).width(width).fill(palette.itemAt(i)).stroke(stroke).zIndex(5);
              gauge.bar(i+100).dataIndex(7).radius(radius).width(width).fill('#aaaaaa').stroke(false).zIndex(4);
+
+
+             // Dataset animation
+             var animationDauer = 0.8;
+             var frameRate = 18;
+             var stepCount = animationDauer * frameRate;
+             var stepSize = data[i]/stepCount;
+             var step = 0;
+             var currentData = 0;
+             var animation = window.setInterval(function() {
+               step++;
+               if(step <= stepCount) {
+                  currentData += stepSize;
+                  view.set(i, "value", currentData);
+               } else {
+                  window.clearInterval(animation);
+                  view.set(i, "value", data[i]);
+               }
+             }, 1000/frameRate);
+
              return gauge.bar(i);
          };
 
