@@ -61,7 +61,6 @@ knattleikrTabelleApp.controller('knattleikrTabelleController', function($scope, 
              gauge.bar(i).dataIndex(i).radius(radius).width(width).fill(palette.itemAt(i)).stroke(stroke).zIndex(5);
              gauge.bar(i+100).dataIndex(7).radius(radius).width(width).fill('#aaaaaa').stroke(false).zIndex(4);
 
-
              // Dataset animation
              var animationDauer = 0.8;
              var frameRate = 18;
@@ -126,7 +125,6 @@ knattleikrTabelleApp.controller('knattleikrTabelleController', function($scope, 
 
        gauge.container('gauge');
        gauge.draw();
-
    };
 
 });

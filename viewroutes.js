@@ -95,6 +95,7 @@ module.exports = function(app, Settings) {
 
       // Illegale Zeichen
       // Zuerst ein Buchstabe, dann beliebige Zeichen (Buchstaben, Ziffern, Unterstrich, Bindestrich, Leerzeichen, Punkt), am Ende Buchstabe oder Ziffer
+      nickname = nickname.trim();
       var regEx = /^[a-zA-Z][a-zA-Z0-9_\-\.\s]+[a-zA-Z0-9]$/;
       if(!nickname.match(regEx) || nickname.length < 3 || nickname.length > 20)
          return res.render('register', {message: 'Der Anzeigename muss mit einem Buchstaben beginnen und auf einen Buchstaben oder eine Ziffer enden. Gültige Zeichen sind: a-z, A-Z, 0-9, Unterstrich, Bindestrich, Leerzeichen, Punkt. Minimale Länge: 3, Maximale Länge: 20', email: email, nickname: ''});
