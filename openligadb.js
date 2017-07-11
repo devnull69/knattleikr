@@ -19,7 +19,7 @@ var returnObject = {
          }
          callback(null, spieltagCache[spieltag].matches);
       } else {
-         client.get("https://www.openligadb.de/api/getmatchdata/bl1/2016/" + spieltag, args, (data, response) => {
+         client.get("https://www.openligadb.de/api/getmatchdata/bl1/2017/" + spieltag, args, (data, response) => {
             spieltagCache[spieltag] = {};
             spieltagCache[spieltag].matches = data;
             spieltagCache[spieltag].lastUpdate = moment();
