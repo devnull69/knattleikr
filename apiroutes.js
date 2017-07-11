@@ -35,7 +35,7 @@ var teamShort = {
    "t131": {shortname: "WOB", iconId: 'commons/c/ce/VfL_Wolfsburg_Logo.svg'},
    "t134": {shortname: "SVW", iconId: 'commons/b/be/SV-Werder-Bremen-Logo.svg'},
    "t171": {shortname: "FCI", iconId: 'de/5/55/FC-Ingolstadt_logo.svg'},
-   "t1635":{shortname: "RBL", iconId: ''}
+   "t1635":{shortname: "RBL", iconId: 'en/0/04/RB_Leipzig_2014_logo.svg'}
 };
 
 module.exports = function(app, Settings) {
