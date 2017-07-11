@@ -61,8 +61,8 @@
                <% for(i=0; i<tabelle.tabelleninhalt.length; i++) {%>
                   <tr>
                      <td><%= letzteWertung==tabelle.tabelleninhalt[i].wertung?"":i+1 %></td>
-                     <td><img src="<%= tabelle.tabelleninhalt[i].teamUrl%>" width="20"/> <%= tabelle.tabelleninhalt[i].teamname %></td>
-                     <td><img src="<%= tabelle.tabelleninhalt[i].teamUrl%>" width="20"/> <%= tabelle.tabelleninhalt[i].teamShort %></td>
+                     <td><img src="<%= tabelle.tabelleninhalt[i].teamUrl%>" width="20" height="20"/> <%= tabelle.tabelleninhalt[i].teamname %></td>
+                     <td><img src="<%= tabelle.tabelleninhalt[i].teamUrl%>" width="20" height="20"/> <%= tabelle.tabelleninhalt[i].teamShort %></td>
                      <td><%= tabelle.tabelleninhalt[i].punkte %></td>
                      <td><%= tabelle.tabelleninhalt[i].spiele %></td>
                      <td><%= tabelle.tabelleninhalt[i].wertung>-1?tabelle.tabelleninhalt[i].wertung.toFixed(3):"-" %></td>
