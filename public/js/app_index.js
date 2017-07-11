@@ -2,24 +2,24 @@ var knattleikrIndexApp = angular.module('knattleikrIndexApp', []);
 
 // Team-Mappings
 var teamShort = {
-   "t6"  : {shortname: "B04", iconId: 7},
-   "t7"  : {shortname: "BVB", iconId: 451245},
-   "t9"  : {shortname: "S04", iconId: 34},
-   "t40" : {shortname: "FCB", iconId: 451261},
-   "t54" : {shortname: "BSC", iconId: 28},
-   "t65" : {shortname: "KOE", iconId: 20},
-   "t81" : {shortname: "M05", iconId: 31},
-   "t87" : {shortname: "BMG", iconId: 9},
-   "t91" : {shortname: "SGE", iconId: 451246},
-   "t95" : {shortname: "FCA", iconId: 16},
-   "t100": {shortname: "HSV", iconId: 26},
-   "t112": {shortname: "SCF", iconId: 33},
-   "t118": {shortname: "D98", iconId: 1055756},
-   "t123": {shortname: "TSG", iconId: 6},
-   "t131": {shortname: "WOB", iconId: 42},
-   "t134": {shortname: "SVW", iconId: 39},
-   "t171": {shortname: "FCI", iconId: 23},
-   "t1635":{shortname: "RBL", iconId: 32}
+   "t6"  : {shortname: "B04", iconId: 'de/f/f7/Bayer_Leverkusen_Logo.svg'},
+   "t7"  : {shortname: "BVB", iconId: 'commons/6/67/Borussia_Dortmund_logo.svg'},
+   "t9"  : {shortname: "S04", iconId: 'commons/6/6d/FC_Schalke_04_Logo.svg'},
+   "t40" : {shortname: "FCB", iconId: 'commons/c/c5/Logo_FC_Bayern_München.svg'},
+   "t54" : {shortname: "BSC", iconId: 'de/3/38/Hertha_BSC_Logo.svg'},
+   "t65" : {shortname: "KOE", iconId: 'de/3/38/Dfs_wl_d_koeln_1_fc1967_1973.gif'},
+   "t81" : {shortname: "M05", iconId: 'de/0/0b/FSV_Mainz_05_Logo.svg'},
+   "t87" : {shortname: "BMG", iconId: 'commons/8/81/Borussia_Mönchengladbach_logo.svg'},
+   "t91" : {shortname: "SGE", iconId: 'commons/0/04/Eintracht_Frankfurt_Logo.svg'},
+   "t95" : {shortname: "FCA", iconId: 'de/b/b5/Logo_FC_Augsburg.svg'},
+   "t100": {shortname: "HSV", iconId: 'commons/6/66/HSV-Logo.svg'},
+   "t112": {shortname: "SCF", iconId: 'de/f/f1/SC-Freiburg_Logo-neu.svg'},
+   "t118": {shortname: "D98", iconId: 'de/8/87/Svdarmstadt98.svg'},
+   "t123": {shortname: "TSG", iconId: 'commons/e/e7/Logo_TSG_Hoffenheim.svg'},
+   "t131": {shortname: "WOB", iconId: 'commons/c/ce/VfL_Wolfsburg_Logo.svg'},
+   "t134": {shortname: "SVW", iconId: 'commons/b/be/SV-Werder-Bremen-Logo.svg'},
+   "t171": {shortname: "FCI", iconId: 'de/5/55/FC-Ingolstadt_logo.svg'},
+   "t1635":{shortname: "RBL", iconId: ''}
 };
 
 knattleikrIndexApp.factory('apiFactory', function($http) {
@@ -136,7 +136,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
 
    $scope.showIcon = function(match, teamNr) {
       var iconId = teamShort["t"+match['Team'+teamNr].TeamId].iconId;
-      return "http://s.bundesliga.de/assets/img/" + (Math.floor(iconId/10000)+1) * 10000 + "/" + iconId + "_original.svg";
+      return "https://upload.wikimedia.org/wikipedia/" + iconId;
    };
 
    $scope.saveTipps = function() {
