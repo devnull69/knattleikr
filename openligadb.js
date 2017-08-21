@@ -43,7 +43,7 @@ var returnObject = {
       }
    },
    invalidateCache : function(spieltag) {
-      spieltagCache[spieltag] = {};
+      spieltagCache[spieltag] = null;
    }
 }
 
