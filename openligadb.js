@@ -41,6 +41,9 @@ var returnObject = {
             callback(null, data);
          });
       }
+   },
+   invalidateCache : function(spieltag) {
+      spieltagCache[spieltag] = {};
    }
 }
 

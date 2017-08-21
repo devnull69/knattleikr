@@ -754,4 +754,19 @@ module.exports = function(app, Settings) {
          callback();
       }
    }
+
+   app.get('/api/admin/invalidatecache', (req, res) => {
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            if(userdetail.isAdmin) {
+               OpenLigaDB.invalidateCache(Settings.aktuellerSpieltag);
+               res.json({err: 0, message: 'Der Cache wurde erfolgreich invalidiert.'});
+            } else {
+               res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+            }
+         });
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+      }
+   });
 };

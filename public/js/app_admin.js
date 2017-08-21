@@ -18,6 +18,9 @@ knattleikrAdminApp.config(function($routeProvider) {
       .when('/sendmail', {
          templateUrl: '/partials/admin_sendmail.htm'
       })
+      .when('/invalidatecache', {
+         templateUrl: '/partials/admin_invalidatecache.htm'
+      })
       .otherwise({
          redirectTo: '/'
       });
@@ -47,6 +50,10 @@ knattleikrAdminApp.factory('apiFactory', function($http) {
 
    apiFactory.lieferantenwertung = function() {
       return $http.get(urlBase + 'lieferantenwertung');
+   };
+
+   apiFactory.invalidateCache = function() {
+      return $http.get(urlBase + 'invalidatecache');
    };
 
    return apiFactory;
@@ -81,6 +88,10 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
          hash: 'lieferantenwertung' 
       },
       {
+         text: 'Cache invalidieren',
+         hash: 'invalidatecache' 
+      },
+      {
          text: 'Mail senden',
          hash: 'sendmail'
       }
@@ -97,8 +108,11 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
       case 'lieferantenwertung':
          routeIndex = 3;
          break;
-      case 'sendmail':
+      case 'invalidatecache':
          routeIndex = 4;
+         break;
+      case 'sendmail':
+         routeIndex = 5;
          break;
       default:
          routeIndex = 0;
@@ -161,6 +175,24 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
       $('#spinner_lieferantenwertung').show();
       apiFactory.lieferantenwertung().then(function(response) {
          $('#spinner_lieferantenwertung').hide();
+         switch(response.data.err) {
+            case 0:
+               showMessage('success', response.data.message);
+               break;
+            case 1:
+               showMessage('danger', response.data.message);
+               break;
+            case 2:
+               window.location.href = "/?err=1";
+               break;
+         }
+      });
+   };
+
+   $scope.invalidateCache = function() {
+      $('#spinner_invalidatecache').show();
+      apiFactory.invalidateCache().then(function(response) {
+         $('#spinner_invalidatecache').hide();
          switch(response.data.err) {
             case 0:
                showMessage('success', response.data.message);
