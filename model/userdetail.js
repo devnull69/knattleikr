@@ -8,7 +8,8 @@ var userDetailSchema = new mongoose.Schema({
    tlStatus: {type: Number, required: true, default: 0},
    punkte: {type: Number, default: 0},
    spiele: {type: Number, default: 0},
-   wertung: {type: Number, default: -1}
+   wertung: {type: Number, default: -1},
+   zweipunkteWertung: {type: Number, default: 0}
 }, {collection: 'userdetail'});
 
 module.exports = mongoose.model('UserDetail', userDetailSchema);

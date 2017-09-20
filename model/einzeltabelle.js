@@ -4,8 +4,10 @@ var einzelTabelleSchema = new mongoose.Schema({
    tabelleninhalt:   [{
          nickname: String,
          punkte: Number,
+         zweiPunkte: Number,
          spiele: Number,
-         wertung: Number
+         wertung: Number,
+         zweipunkteWertung: Number
    }] 
 }, {collection: 'einzeltabelle'});
 

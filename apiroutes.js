@@ -393,7 +393,7 @@ module.exports = function(app, Settings) {
                var allUsers = {};
                User.find({}, {}, (err, users) => {
                   async.forEach(users, (user, callback) => {
-                     allUsers[user._id] = {nickname: user.nickname, punkte: 0, spiele: 0, wertung: -1};
+                     allUsers[user._id] = {nickname: user.nickname, punkte: 0, zweiPunkte: 0, spiele: 0, wertung: -1, zweipunkteWertung: 0};
                      callback();
                   }, err => {
                      gesamtzahlSpiele = 0;
@@ -424,8 +424,11 @@ module.exports = function(app, Settings) {
                         // Punkte berechnen und dem Benutzer hinzufügen
                         var punkte = Helper.calcPunkte(match.MatchResults[1].PointsTeam1, match.MatchResults[1].PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
                         users[usertipp.fiUser].punkte += punkte;
+                        if(punkte == 2) 
+                           users[usertipp.fiUser].zweiPunkte++;
                         users[usertipp.fiUser].spiele++;
                         users[usertipp.fiUser].wertung = users[usertipp.fiUser].punkte/users[usertipp.fiUser].spiele;
+                        users[usertipp.fiUser].zweipunkteWertung = users[usertipp.fiUser].zweiPunkte/users[usertipp.fiUser].spiele;
                         innercallback();
                      }, err => {
                         // inner async forEach finished, go next on outer async forEach
@@ -454,7 +457,7 @@ module.exports = function(app, Settings) {
                if(users[userid].spiele + Settings.maxVerpassteSpiele < (gesamtzahlSpiele + 9))
                   gefaehrdeteUser.push(users[userid].nickname);
 
-            UserDetail.update({fiUser: new mongoose.Types.ObjectId(userid)}, {$set: {punkte: users[userid].punkte, spiele: users[userid].spiele, wertung: users[userid].wertung, isAktiv: isAktiv}}, err => {
+            UserDetail.update({fiUser: new mongoose.Types.ObjectId(userid)}, {$set: {punkte: users[userid].punkte, spiele: users[userid].spiele, wertung: users[userid].wertung, zweipunkteWertung: users[userid].zweipunkteWertung, isAktiv: isAktiv}}, err => {
                callback();
             });
          }, err => {
