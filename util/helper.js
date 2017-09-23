@@ -25,6 +25,24 @@ module.exports = {
       return punkte;
    },
 
+   calcTotoPunkte : function(erg1, erg2, tipp1, tipp2) {
+      var punkte = 0;
+      if(erg1 === erg2) {              // Unentschieden
+         if(tipp1 === tipp2) {
+            punkte = 1;
+         }
+      } else if (erg1 > erg2) {        // Heimsieg
+         if(tipp1 > tipp2) {
+            punkte = 1;
+         }
+      } else if (erg1 < erg2) {        // Auswärtssieg
+         if(tipp1 < tipp2) {
+            punkte = 1;
+         }
+      }
+      return punkte;
+   },
+
    md5 : function(mytext) {
       return crypto.createHash('md5').update(mytext).digest('hex');
    }

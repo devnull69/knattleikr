@@ -6,6 +6,7 @@ var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 var User = require('./model/user.js');
 var UserDetail = require('./model/userdetail.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
+var Tototabelle = require('./model/tototabelle.js');
 var Lieferanten = require('./model/lieferanten.js');
 
 var Helper = require('./util/helper.js');
@@ -361,7 +362,9 @@ module.exports = function(app, Settings) {
 
    app.get('/tabelle', canBeLoggedIn, (req, res) => {
       Einzeltabelle.findOne({}, (err, tabelle) => {
-         res.render('tabelle', {user: req.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, gravatarhash: req.user?Helper.md5(req.user.email):null});
+         Tototabelle.findOne({}, (err, tototabelle) => {
+            res.render('tabelle', {user: req.user, userdetail: req.userdetail, spieltagNr: Settings.aktuellerSpieltag, tabelle: tabelle, tototabelle: tototabelle, gravatarhash: req.user?Helper.md5(req.user.email):null});
+         });
       });
    });
 

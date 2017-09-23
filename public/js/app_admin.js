@@ -9,6 +9,9 @@ knattleikrAdminApp.config(function($routeProvider) {
       .when('/gesamtwertung', {
          templateUrl: '/partials/admin_gesamtwertung.htm'
       })
+      .when('/totowertung', {
+         templateUrl: '/partials/admin_totowertung.htm'
+      })
       .when('/spieltagwertung', {
          templateUrl: '/partials/admin_spieltagwertung.htm'
       })
@@ -42,6 +45,10 @@ knattleikrAdminApp.factory('apiFactory', function($http) {
 
    apiFactory.einzelwertung = function() {
       return $http.get(urlBase + 'einzelwertung');
+   };
+
+   apiFactory.totowertung = function() {
+      return $http.get(urlBase + 'totowertung');
    };
 
    apiFactory.spieltagwertung = function(spieltagNr) {
@@ -80,6 +87,10 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
          hash: 'gesamtwertung'
       },
       {
+         text: 'Totowertung',
+         hash: 'totowertung'
+      },
+      {
          text: 'Spieltagwertung',
          hash: 'spieltagwertung'
       },
@@ -102,17 +113,20 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
       case 'gesamtwertung':
          routeIndex = 1;
          break;
-      case 'spieltagwertung':
+      case 'totowertung':
          routeIndex = 2;
          break;
-      case 'lieferantenwertung':
+      case 'spieltagwertung':
          routeIndex = 3;
          break;
-      case 'invalidatecache':
+      case 'lieferantenwertung':
          routeIndex = 4;
          break;
-      case 'sendmail':
+      case 'invalidatecache':
          routeIndex = 5;
+         break;
+      case 'sendmail':
+         routeIndex = 6;
          break;
       default:
          routeIndex = 0;
@@ -139,6 +153,24 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
       $('#spinner_einzelwertung').show();
       apiFactory.einzelwertung().then(function(response) {
          $('#spinner_einzelwertung').hide();
+         switch(response.data.err) {
+            case 0:
+               showMessage('success', response.data.message);
+               break;
+            case 1:
+               showMessage('danger', response.data.message);
+               break;
+            case 2:
+               window.location.href = "/?err=1";
+               break;
+         }
+      });
+   };
+
+   $scope.totowertung = function() {
+      $('#spinner_totowertung').show();
+      apiFactory.totowertung().then(function(response) {
+         $('#spinner_totowertung').hide();
          switch(response.data.err) {
             case 0:
                showMessage('success', response.data.message);

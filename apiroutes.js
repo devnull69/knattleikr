@@ -9,6 +9,7 @@ var UserDetail = require('./model/userdetail.js');
 var UserTipp = require('./model/usertipp.js');
 var Config = require('./model/config.js');
 var Einzeltabelle = require('./model/einzeltabelle.js');
+var Tototabelle = require('./model/tototabelle.js');
 var Spieltagtabelle = require('./model/spieltagtabelle.js');
 var Lieferanten = require('./model/lieferanten.js');
 var Mailer = require('sendgrid').mail;
@@ -480,6 +481,86 @@ module.exports = function(app, Settings) {
             });
 
          });
+      }
+   }
+
+   app.get('/api/admin/totowertung', (req, res) => {
+      if(req.session.user) {
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            if(userdetail.isAdmin) {
+               // Schritt 0: Alle User holen
+               // Schritt 1: Alle Spieltage durchgehen, dann Tipps sichten
+               // Schritt 2: Benutzer updaten
+               // Schritt 3: Tabelle berechnen aus Usern
+               var allUsers = {};
+               User.find({}, {}, (err, users) => {
+                  async.forEach(users, (user, callback) => {
+                     allUsers[user._id] = {nickname: user.nickname, punkte: 0, spiele: 0, wertung: -1};
+                     callback();
+                  }, err => {
+                     gesamtzahlSpiele = 0;
+                     totowertungRekursiv(1, res, allUsers);
+                  });
+               });
+            } else {
+               res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+            }
+         });
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+      }
+   });
+
+   function totowertungRekursiv(spieltag, res, users) {
+      if(spieltag <= Settings.aktuellerSpieltag) {
+         OpenLigaDB.getSpieltag(spieltag, (err, matches) => {
+            // einen Spieltag durchgehen
+            async.forEach(matches, (match, callback) => {
+               if(match.MatchIsFinished) {
+                  var theMatchNr = match.MatchID;
+                  gesamtzahlSpiele++;
+
+                  // Alle Tipps dazu suchen
+                  UserTipp.find({matchNr: theMatchNr}, (err, usertipps) => {
+                     async.forEach(usertipps, (usertipp, innercallback) => {
+                        // Punkte berechnen und dem Benutzer hinzufügen
+                        var punkte = Helper.calcTotoPunkte(match.MatchResults[1].PointsTeam1, match.MatchResults[1].PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
+                        users[usertipp.fiUser].punkte += punkte;
+                        users[usertipp.fiUser].spiele++;
+                        users[usertipp.fiUser].wertung = users[usertipp.fiUser].punkte/users[usertipp.fiUser].spiele;
+                        innercallback();
+                     }, err => {
+                        // inner async forEach finished, go next on outer async forEach
+                        callback();
+                     });
+                  });
+               } else {
+                  callback();
+               }
+            }, err => {
+               // Async loop finished
+               totowertungRekursiv(spieltag + 1, res, users);
+            });
+         });         
+      } else {
+         // Tabelle berechnen
+
+         // Users-Objekt in Array umwandeln
+         var userArray = [];
+         for(userid in users) {
+            // inaktive herausfiltern
+            if(users[userid].spiele + Settings.maxVerpassteSpiele >= gesamtzahlSpiele)
+               userArray.push(users[userid]);
+         }
+
+         userArray.sort((user1, user2) => {
+            return (user2.wertung - user1.wertung) || (user2.punkte - user1.punkte);
+         });
+
+         Tototabelle.update({}, {$set: {tabelleninhalt: userArray}}, {upsert: true}, (err, results) => {
+            res.json({err: 0, message: 'Totowertung erfolgreich berechnet.'});
+         });
+
       }
    }
 

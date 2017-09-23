@@ -94,7 +94,41 @@
          </table>
          <hr/>
          <p class="white">Hier geht's zur >> <a href="/lieferanten">Tabelle der zuverlässigen Punktlieferanten</a></p>
-         <div id="gauge" style="height: 500px;"></div>
+         <div id="gauge"></div>
+         <hr/>
+         <h4>Tototabelle</h4>
+         <h7>Wenn es lediglich für die korrekt getippte Tendenz einen Punkt gäbe</h7>
+         <table class="table">
+            <thead>
+               <tr>
+                  <th>Pl.</th>
+                  <th>User</th>
+                  <th>Pkt.</th>
+                  <th>Sp.</th>
+                  <th>Wertung</th>
+               </tr>
+            </thead>
+            <tbody>
+               <% var letzteWertung = -2; %>
+               <% var letztePunkte = -1; %>
+               <% for(i=0; i<tototabelle.tabelleninhalt.length; i++) {
+                     if(tototabelle.tabelleninhalt[i].punkte > maxpkt)
+                        maxpkt = tototabelle.tabelleninhalt[i].punkte;
+                  }
+                  for(i=0; i<tototabelle.tabelleninhalt.length; i++) {
+                  %>
+                  <tr>
+                     <td><%= (letzteWertung==tototabelle.tabelleninhalt[i].wertung && letztePunkte==tototabelle.tabelleninhalt[i].punkte)?"":i+1 %></td>
+                     <td><a class="userlink" href="/user/<%= tototabelle.tabelleninhalt[i].nickname %>"><%= tototabelle.tabelleninhalt[i].nickname %></a></td>
+                     <td><%= tototabelle.tabelleninhalt[i].punkte %></td>
+                     <td><%= tototabelle.tabelleninhalt[i].spiele %></td>
+                     <td><%= tototabelle.tabelleninhalt[i].wertung>-1?(tototabelle.tabelleninhalt[i].wertung * 100).toFixed(1):"-" %>&nbsp;%</td>
+                  </tr>
+               <%    letzteWertung = tototabelle.tabelleninhalt[i].wertung;
+                     letztePunkte = tototabelle.tabelleninhalt[i].punkte;
+                  }%>
+            </tbody>
+         </table>
       </div>
       <div class="hidden-xs col-md-3 col-lg-4"></div>
    </div>
