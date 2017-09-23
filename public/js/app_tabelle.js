@@ -15,7 +15,7 @@ knattleikrTabelleApp.controller('knattleikrTabelleController', function($scope, 
 
    $scope.showGauge = function(username, pkt, spiele, pkt1, spiele1, maxpkt) {
 
-      $('#gauge').css("height: 500px");
+      $('#gauge').css("height", "500px");
 
       // Container leeren
       $('#gauge').html("");
