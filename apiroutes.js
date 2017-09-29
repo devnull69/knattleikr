@@ -245,7 +245,7 @@ module.exports = function(app, Settings) {
                result.Tipps = [];
 
                // Ist das Ergebnis schon da?
-               if(match.MatchResults.length > 1) {
+               if(match.MatchResults.length > 1 && match.matchIsFinished) {
                   result.Ergebnis = match.MatchResults[1].PointsTeam1 + " : " + match.MatchResults[1].PointsTeam2;
                }
 
