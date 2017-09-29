@@ -109,7 +109,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
 
    $scope.showTipp = function(match) {
       var matchDate = moment(match.MatchDateTimeUTC);
-      var returnValue = "";
+      var returnValue = ' <a href="/matrix/' + $scope.aktuellerSpieltag + '/' + match.MatchID + '"><img src="/images/matrix.png" /></a>';
       $scope.tippbar = false;
       if(match.usertipp) {
          // Tippdatum minus x Stunden noch nicht erreicht? Dann input-Felder anzeigen
@@ -118,13 +118,22 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
             $scope.tippbar = true;
          }
          else {
-            returnValue = match.usertipp.pointsTeam1 + ":" + match.usertipp.pointsTeam2;
+            returnValue = match.usertipp.pointsTeam1 + ":" + match.usertipp.pointsTeam2 + returnValue;
          }
       } else {
          if(moment.duration(matchDate.diff(moment())).asHours() > $scope.stundenVorher) {
             returnValue = '<input name="' + match.MatchID + '_1" class="tipp" type="text" maxlength="2" value="" style="width: 25px;"/>:<input name="' + match.MatchID + '_2" class="tipp" type="text" maxlength="2" value="" style="width: 25px;"/>';
             $scope.tippbar = true;
          }
+      }
+      return $sce.trustAsHtml(returnValue);
+   };
+
+   $scope.showMatrix = function(match) {
+      var matchDate = moment(match.MatchDateTimeUTC);
+      var returnValue = '';
+      if(moment.duration(matchDate.diff(moment())).asHours() < $scope.stundenVorher) {
+         returnValue = returnValue = '<a href="/matrix/' + $scope.aktuellerSpieltag + '/' + match.MatchID + '"><img src="/images/matrix.png" /></a>';
       }
       return $sce.trustAsHtml(returnValue);
    };

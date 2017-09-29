@@ -232,6 +232,49 @@ module.exports = function(app, Settings) {
    //    }
    // });
 
+   app.get('/api/matrix/:spieltag/:match', (req, res) => {
+      OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {
+         // zunächst einmal den Matchinhalt holen
+         var result = {};
+         for(matchIdx in data) {
+            var match = data[matchIdx];
+            if(match.MatchID == req.params.match) {
+               result.Team1 = match.Team1;
+               result.Team2 = match.Team2;
+               result.Ergebnis = "";
+               result.Tipps = [];
+
+               // Ist das Ergebnis schon da?
+               if(match.MatchResults.length > 1) {
+                  result.Ergebnis = match.MatchResults[1].PointsTeam1 + " : " + match.MatchResults[1].PointsTeam2;
+               }
+
+               // Jetzt alle Tipps zu dem Match holen, falls die korrekte Zeit erreicht ist
+               var matchDate = moment(match.MatchDateTimeUTC);
+               if(moment.duration(matchDate.diff(moment())).asHours() < Settings.stundenVorher) {
+                  UserTipp.find({matchNr: match.MatchID}, (err, usertipps) => {
+                     if(usertipps) {
+                        async.forEach(usertipps, (usertipp, callback) => {
+                           // Username holen
+                           User.findOne({"_id": new mongoose.Types.ObjectId(usertipp.fiUser)}, (err, user) => {
+                              result.Tipps.push({nickname: user.nickname, ergebnis: usertipp.pointsTeam1 + " : " + usertipp.pointsTeam2});
+                              callback();
+                           });
+                        }, err => {
+                           res.json(result);
+                        });
+                     } else {
+                        res.json(result);
+                     }
+                  });
+               } else {
+                  res.json(result);
+               }
+            }
+         }
+      });
+   });
+
    app.get('/api/user/:userid/spieltag/:spieltag', (req, res) => {
       // Spieltag-Daten von OpenLigaDB
       OpenLigaDB.getSpieltag(req.params.spieltag, (err, data) => {

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de" ng-app="knattleikrMatrixApp">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width">
+   <title>KNATTLEIKR</title>
+
+   <% include cssAndScripts %>
+
+   <script>
+      var spieltagNr = parseInt('<%= spieltagNr %>', 10);
+      var matchNr = parseInt('<%= matchNr %>', 10);
+   </script>
+
+   <script type="text/javascript" src="/js/app_matrix.js"></script>
+</head>
+<body ng-controller="knattleikrMatrixController">
+
+   <% include nav %>
+   
+   <div class="container" style="margin-top: 70px;">
+      <h6>Willkommen<% if(user) {%><span> <%= user.nickname%></span><%= userdetail.wertung>-1?' ('+userdetail.wertung.toFixed(3)+')':''%><% }%></h6>
+      <div class="alert alert-danger alert-dismissable" <% if(!error) {%>style="display:none;"<% }%>>
+         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+         Deine Sitzung ist abgelaufen. Bitte logge Dich neu ein!
+      </div>
+
+      <div id="alertmessage" class="alert" style="display:none;">
+         <span id="messagetext"></span>
+      </div>
+   </div>
+
+   <div style="min-height: 500px;">
+      <div class="hidden-xs col-md-2 col-lg-3"></div>
+      <div class="col-xs-12 col-md-8 col-lg-6">
+         <h4>Tippmatrix</h4>
+         <table class="table" ng-if="matchTipps.Team1">
+            <tbody>
+                  <tr>
+                     <td width="30%">&nbsp;</td>
+                     <td><img ng-src="{{showIcon(1)}}" width="20" height="20" /> {{ showTeamName(1) }} - <img ng-src="{{showIcon(2)}}" width="20" height="20" /> {{ showTeamName(2) }}</td>
+                     <td>{{ matchTipps.Ergebnis?matchTipps.Ergebnis:'' }}</td>
+                  </tr>
+            </tbody>
+         </table>
+         <table class="table" ng-if="matchTipps.Tipps && matchTipps.Tipps.length > 0">
+            <tbody>
+                  <tr ng-repeat="tipp in matchTipps.Tipps">
+                     <td width="30%"><a class="userlink" ng-href="/user/{{ tipp.nickname }}">{{ tipp.nickname }}</a></td>
+                     <td>{{ tipp.ergebnis }}</td>
+                  </tr>
+            </tbody>
+         </table>
+         <p class="white" ng-if="matchTipps.Tipps && matchTipps.Tipps.length == 0">Es stehen keine Tipps für das gewählte Match zur Verfügung.</p>
+      </div>
+      <div class="hidden-xs col-md-2 col-lg-3"></div>
+   </div>
+   <div class="device-xs visible-xs"></div>
+   <div class="device-sm visible-sm"></div>
+</body>
+</html>

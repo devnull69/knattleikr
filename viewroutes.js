@@ -80,6 +80,12 @@ module.exports = function(app, Settings) {
       res.render('index', {user: req.user, userdetail: req.userdetail, spieltagNr: spieltagNr, gravatarhash: req.user?Helper.md5(req.session.user.email):null, stundenVorherString: stundenVorherString, error: req.query.err, maxVerpassteSpiele: maxVerpassteSpiele});
    });
 
+   app.get('/matrix/:spieltag/:match', canBeLoggedIn, (req, res) => {
+      var spieltag = req.params.spieltag;
+      var match = req.params.match;
+      res.render('matrix', {user: req.user, userdetail: req.userdetail, spieltagNr: spieltag, gravatarhash: req.user?Helper.md5(req.session.user.email):null, matchNr: match, error: req.query.err});
+   });
+
    app.get('/register', mustNotBeLoggedIn, (req, res) => {
       res.render('register', {message: '', email: '', nickname: ''});
    });
