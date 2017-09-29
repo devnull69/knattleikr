@@ -37,7 +37,7 @@
          <table class="table" ng-if="matchTipps.Team1">
             <tbody>
                   <tr>
-                     <td width="30%">&nbsp;</td>
+                     <td width="35%">&nbsp;</td>
                      <td><img ng-src="{{showIcon(1)}}" width="20" height="20" /> {{ showTeamName(1) }} - <img ng-src="{{showIcon(2)}}" width="20" height="20" /> {{ showTeamName(2) }}</td>
                      <td>{{ matchTipps.Ergebnis?matchTipps.Ergebnis:'' }}</td>
                   </tr>
@@ -46,7 +46,7 @@
          <table class="table" ng-if="matchTipps.Tipps && matchTipps.Tipps.length > 0">
             <tbody>
                   <tr ng-repeat="tipp in matchTipps.Tipps">
-                     <td width="30%"><a class="userlink" ng-href="/user/{{ tipp.nickname }}">{{ tipp.nickname }}</a></td>
+                     <td width="35%"><a class="userlink" ng-href="/user/{{ tipp.nickname }}">{{ tipp.nickname }}</a></td>
                      <td>{{ tipp.ergebnis }}</td>
                   </tr>
             </tbody>
