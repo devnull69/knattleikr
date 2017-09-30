@@ -133,7 +133,7 @@ knattleikrIndexApp.controller('knattleikrIndexController', function($scope, $sce
       var matchDate = moment(match.MatchDateTimeUTC);
       var returnValue = '';
       if(moment.duration(matchDate.diff(moment())).asHours() < $scope.stundenVorher) {
-         returnValue = returnValue = '<a ng-href="/matrix/' + $scope.aktuellerSpieltag + '/' + match.MatchID + '"><img src="/images/matrix.png" /></a>';
+         returnValue = returnValue = '<a href="/matrix/' + $scope.aktuellerSpieltag + '/' + match.MatchID + '"><img src="/images/matrix.png" /></a>';
       }
       return $sce.trustAsHtml(returnValue);
    };
