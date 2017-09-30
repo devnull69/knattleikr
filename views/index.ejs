@@ -57,7 +57,7 @@
                   <% if (user) {%>
                      <td>{{ match.MatchResults[1].PointsTeam1+":"+match.MatchResults[1].PointsTeam2 }}</td>
                   <% } else {%>
-                     <td><a ng-href="/matrix/{{aktuellerSpieltag}}/{{match.MatchID}}">{{ match.MatchResults[1].PointsTeam1+":"+match.MatchResults[1].PointsTeam2 }}</a></td>
+                     <td>{{ match.MatchResults[1].PointsTeam1+":"+match.MatchResults[1].PointsTeam2 }} <span ng-bind-html="showMatrix(match)"></span></td>
                   <% }%>
                   <% if (user) {%>
                      <td ng-bind-html="showTipp(match)"></td>
@@ -90,7 +90,7 @@
                      <% if (user) {%>
                         <td>{{ showDatumUhrzeit(match) }}</td>
                      <% } else {%>
-                        <td>{{ showDatumUhrzeit(match) }}{{ showMatrix(match) }}</td>
+                        <td>{{ showDatumUhrzeit(match) }} <span ng-bind-html="showMatrix(match)"></span></td>
                      <% }%>
                      <% if (user) {%>
                         <td ng-bind-html="showTipp(match)"></td>
