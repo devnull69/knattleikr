@@ -247,6 +247,8 @@ module.exports = function(app, Settings) {
                // Ist das Ergebnis schon da?
                if(match.MatchResults.length > 1 && match.MatchIsFinished) {
                   result.Ergebnis = match.MatchResults[1].PointsTeam1 + " : " + match.MatchResults[1].PointsTeam2;
+                  result.PointsTeam1 = match.MatchResults[1].PointsTeam1;
+                  result.PointsTeam2 = match.MatchResults[1].PointsTeam2;
                }
 
                // Jetzt alle Tipps zu dem Match holen, falls die korrekte Zeit erreicht ist
@@ -259,7 +261,7 @@ module.exports = function(app, Settings) {
                            User.findOne({"_id": new mongoose.Types.ObjectId(usertipp.fiUser)}, (err, user) => {
                               var punkte = -1;
                               if(match.MatchResults.length > 1 && match.MatchIsFinished) {
-                                 punkte = Helper.calcPunkte(match.MatchResults[1].PointsTeam1, match.MatchResults[1].PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
+                                 punkte = Helper.calcPunkte(result.PointsTeam1, result.PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
                               }
                               result.Tipps.push({nickname: user.nickname, ergebnis: usertipp.pointsTeam1 + " : " + usertipp.pointsTeam2, punkte: punkte});
                               callback();
