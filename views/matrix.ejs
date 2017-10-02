@@ -48,6 +48,7 @@
                   <tr ng-repeat="tipp in matchTipps.Tipps">
                      <td width="35%"><a class="userlink" ng-href="/user/{{ tipp.nickname }}">{{ tipp.nickname }}</a></td>
                      <td>{{ tipp.ergebnis }}</td>
+                     <td ng-if="tipp.punkte != -1">{{ tipp.punkte }}</td>
                   </tr>
             </tbody>
          </table>

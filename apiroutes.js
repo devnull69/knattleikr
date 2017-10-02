@@ -257,7 +257,11 @@ module.exports = function(app, Settings) {
                         async.forEach(usertipps, (usertipp, callback) => {
                            // Username holen
                            User.findOne({"_id": new mongoose.Types.ObjectId(usertipp.fiUser)}, (err, user) => {
-                              result.Tipps.push({nickname: user.nickname, ergebnis: usertipp.pointsTeam1 + " : " + usertipp.pointsTeam2});
+                              var punkte = -1;
+                              if(match.MatchResults.length > 1 && match.MatchIsFinished) {
+                                 punkte = Helper.calcPunkte(match.MatchResults[1].PointsTeam1, match.MatchResults[1].PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
+                              }
+                              result.Tipps.push({nickname: user.nickname, ergebnis: usertipp.pointsTeam1 + " : " + usertipp.pointsTeam2, punkte: punkte});
                               callback();
                            });
                         }, err => {
