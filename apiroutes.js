@@ -14,6 +14,7 @@ var Spieltagtabelle = require('./model/spieltagtabelle.js');
 var Lieferanten = require('./model/lieferanten.js');
 var Mailer = require('sendgrid').mail;
 var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
+var Scheduler = require('node-schedule');
 
 var gesamtzahlSpiele = 0;
 
@@ -41,7 +42,7 @@ var teamShort = {
    "t1635":{shortname: "RBL", iconId: 'en/0/04/RB_Leipzig_2014_logo.svg'}
 };
 
-module.exports = function(app, Settings) {
+module.exports = function(app, Settings, Job) {
    
    app.get('/api/spieltag/:spieltag', (req, res) => {
       // Spieltag-Daten von OpenLigaDB
@@ -418,6 +419,31 @@ module.exports = function(app, Settings) {
                      // Konfiguration in Datenbank ablegen
                      Config.update({}, {$set: {aktuellerSpieltag: neuerWert}}, err => {
                         res.json({err: 0, message: 'Die Konfiguration wurde erfolgreich gespeichert.'});
+
+
+                        // Schedule a job for sending a mail for the next Spieltag
+                        OpenLigaDB.getSpieltag(neuerWert, (err, data) => {
+                           // Date of first game
+                           var match = data[0];
+                           var scheduleDateStr = match.MatchDateTime.substring(0, 11) + "09:00:00Z";
+
+                           var scheduleDate = new Date(scheduleDateStr);
+                           if(Job)
+                              Job.cancel();
+                           Job = Scheduler.scheduleJob(scheduleDate, () => {
+                              // Scheduled time reached, send mails
+                              console.log("Scheduled time reached!");
+                              User.find({}, (err, users) => {
+                                 async.forEach(users, (user, callback) => {
+                                    sendMailToUser(user, "Tippen nicht vergessen", "<p>Nicht vergessen!</p><p>Heute beginnt der nächste Spieltag. Hast Du schon Deine Tipps abgegeben?</p>", callback);
+                                 }, err => {
+                                    console.log("Mails have been sent");
+                                 });
+                              });
+                           });
+
+                           console.log("Mail job scheduled for " + scheduleDateStr);
+                        });
                      });
                   }
                } else {
