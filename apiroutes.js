@@ -928,4 +928,24 @@ module.exports = function(app, Settings, Job) {
          res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
       }
    });
+
+   app.get('/api/admin/checkjob', (req, res) => {
+      console.log('Checking job ...');
+      if(req.session.user) {
+         console.log('User is logged in ...');
+         UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(req.session.user._id)}, (err, userdetail) => {
+            if(userdetail.isAdmin) {
+               console.log('User is admin ...');
+               var message = 'Mailjob läuft nicht';
+               if(Job && Job.nextInvocation())
+                  message = 'Nächste Ausführung des Mailjobs: ' + Job.nextInvocation();
+               res.json({err: 0, message: message});
+            } else {
+               res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+            }
+         });
+      } else {
+         res.json({err: 2, message: 'Deine Sitzung ist abgelaufen. Zugriff verweigert.'});
+      }
+   });
 };

@@ -24,6 +24,9 @@ knattleikrAdminApp.config(function($routeProvider) {
       .when('/invalidatecache', {
          templateUrl: '/partials/admin_invalidatecache.htm'
       })
+      .when('/checkjob', {
+         templateUrl: '/partials/admin_checkjob.htm'
+      })
       .otherwise({
          redirectTo: '/'
       });
@@ -63,6 +66,10 @@ knattleikrAdminApp.factory('apiFactory', function($http) {
       return $http.get(urlBase + 'invalidatecache');
    };
 
+   apiFactory.checkjob = function() {
+      return $http.get(urlBase + 'checkjob');
+   };
+
    return apiFactory;
 });
 
@@ -76,6 +83,8 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
    $scope.templateData.joinNicknames = "";
    $scope.templateData.betreff = "";
    $scope.templateData.mailbody = "";
+
+   $scope.jobstatus = 'wird geprüft ...';
 
    $scope.adminlinks = [
       {
@@ -103,6 +112,10 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
          hash: 'invalidatecache' 
       },
       {
+         text: 'Mailjob-Status',
+         hash: 'checkjob' 
+      },
+      {
          text: 'Mail senden',
          hash: 'sendmail'
       }
@@ -125,8 +138,11 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
       case 'invalidatecache':
          routeIndex = 5;
          break;
-      case 'sendmail':
+      case 'checkjob':
          routeIndex = 6;
+         break;
+      case 'sendmail':
+         routeIndex = 7;
          break;
       default:
          routeIndex = 0;
@@ -238,6 +254,27 @@ knattleikrAdminApp.controller('knattleikrAdminController', function($scope, $win
          }
       });
    };
+
+   $scope.checkJob = function() {
+      $scope.jobstatus = 'wird geprüft ...';
+      apiFactory.checkjob().then(function(response) {
+         switch(response.data.err) {
+            case 0:
+               $scope.jobstatus = response.data.message;
+               break;
+            case 1:
+               $scope.jobstatus = response.data.message;
+               showMessage('danger', $scope.jobstatus);
+               break;
+            case 2:
+               window.location.href = "/?err=1";
+               break;
+         }
+      });
+   };
+
+   // Ausführen!
+   $scope.checkJob();
 
    $scope.sendMail = function() {
       $('#spinner_sendmail').show();
