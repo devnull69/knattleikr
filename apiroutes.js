@@ -261,7 +261,7 @@ module.exports = function(app, Settings, Job) {
                            // Username holen
                            User.findOne({"_id": new mongoose.Types.ObjectId(usertipp.fiUser)}, (err, user) => {
                               var punkte = -1;
-                              if(match.MatchResults.length > 1 && match.MatchIsFinished) {
+                              if(result.Ergebnis) {
                                  punkte = Helper.calcPunkte(result.PointsTeam1, result.PointsTeam2, usertipp.pointsTeam1, usertipp.pointsTeam2);
                               }
                               result.Tipps.push({nickname: user.nickname, ergebnis: usertipp.pointsTeam1 + " : " + usertipp.pointsTeam2, punkte: punkte});
