@@ -107,6 +107,9 @@ app.listen(app.get('port'), () => {
 	console.log("Server listening on port " + app.get('port') + " ...");
 });
 
+// Heartbeat to avoid idling of the heroku server
+setInterval(() => {console.log("Heartbeat sent ...")}, 5 * 60 * 1000);   // Heartbeat every 5 mins
+
 // Testcode
 // var newTipp = new UserTipp();
 // newTipp.fiUser = "588ef1a55b8fbd94e8941d44";
