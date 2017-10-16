@@ -26,9 +26,10 @@
     "express-session": "^1.15.0",
     "moment": "^2.17.1",
     "mongoose": "^4.7.8",
+    "newrelic": "^2.2.2",
     "node-rest-client": "^2.0.1",
-    "sendgrid": "^4.7.1",
-    "node-schedule": "^1.2.5"
+    "node-schedule": "^1.2.5",
+    "sendgrid": "^4.7.1"
   },
   "keywords": [
     "node",
