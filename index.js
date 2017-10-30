@@ -8,6 +8,7 @@ var MongoStore = require('connect-mongo')(session);
 var Scheduler = require('node-schedule');
 var OpenLigaDB = require('./openligadb');
 var User = require('./model/user.js');
+var UserDetail = require('./model/userdetail.js');
 var Mailer = require('sendgrid').mail;
 var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 var async = require('async');
@@ -48,6 +49,7 @@ Config.find({}, (err, docs) => {
       // Date of first game
       var match = data[0];
       var scheduleDateStr = match.MatchDateTime.substring(0, 11) + "09:00:00Z";
+      //var scheduleDateStr = "2017-10-30T09:17:00Z";
 
       var scheduleDate = new Date(scheduleDateStr);
       var Job = Scheduler.scheduleJob(scheduleDate, () => {
