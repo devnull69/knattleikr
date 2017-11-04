@@ -60,7 +60,7 @@ Config.find({}, (err, docs) => {
                // Nur zu aktiven Usern schicken
                UserDetail.findOne({fiUser: new mongoose.Types.ObjectId(user._id)}, (err, userdetail) => {
                   if(!err && userdetail && userdetail.isAktiv)
-                     sendMailToUser(user, "Tippen nicht vergessen", "<p>Nicht vergessen!</p><p>Heute beginnt der nächste Spieltag. Hast Du schon Deine Tipps abgegeben?</p>", callback);
+                     sendMailToUser(user, "Tippen nicht vergessen", '<p>Nicht vergessen!</p><p>Heute beginnt der nächste Spieltag. Hast Du schon Deine Tipps abgegeben?</p><p><a href="' + Settings.hostUrl + '">' + Settings.hostUrl + '</a></p>', callback);
                });
             }, err => {
                console.log("Mails have been sent");
