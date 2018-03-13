@@ -27,7 +27,7 @@ var teamShort = {
    "t40" : {shortname: "FCB", iconId: 'commons/thumb/1/1f/Logo_FC_Bayern_München_%282002–2017%29.svg/768px-Logo_FC_Bayern_München_%282002–2017%29.svg.png'},
    "t54" : {shortname: "BSC", iconId: 'de/3/38/Hertha_BSC_Logo.svg'},
    "t55" : {shortname: "H96", iconId: 'commons/c/cd/Hannover_96_Logo.svg'},
-   "t65" : {shortname: "KOE", iconId: 'de/3/38/Dfs_wl_d_koeln_1_fc1967_1973.gif'},
+   "t65" : {shortname: "KOE", iconId: 'commons/0/0a/1.FC_Köln_escudo.png'},
    "t81" : {shortname: "M05", iconId: 'commons/d/d6/FSV_Mainz_05_Logo.png'},
    "t87" : {shortname: "BMG", iconId: 'commons/8/81/Borussia_Mönchengladbach_logo.svg'},
    "t91" : {shortname: "SGE", iconId: 'commons/0/04/Eintracht_Frankfurt_Logo.svg'},
