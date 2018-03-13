@@ -2,3 +2,5 @@ apiroutes.js
 app_index.js
 app_matrix.js
 app_user.js
+
+ANSCHLIESSEND: Lieferanten-Tabellen neu berechnen lassen, da die Icons dort Kopien sind!
