@@ -27,7 +27,7 @@
     "moment": "^2.19.3",
     "mongoose": "^5.9.29",
     "newrelic": "^2.9.1",
-    "node-rest-client": "^2.0.1",
+    "node-rest-client": "^2.5.0",
     "node-schedule": "^1.2.5",
     "sendgrid": "^4.7.1"
   },
